@@ -1,0 +1,22 @@
+
+.footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #ad9551;
+}
+
+.footer p {
+    font-size: 1rem;
+    color: aliceblue;
+}
+.footer a {
+    font-size: 1rem;
+    color: aliceblue;
+}
+
+.footer-logo {
+    width: 130px;
+    height: auto;
+    cursor: pointer;
+}
+

@@ -1,0 +1,24 @@
+<div [ngClass]="colorClass">
+    <ul class="social-links">
+        <li class="facebook">
+            <a [href]="facebook" target="_blank">
+                <i class="fa fa-facebook fa-2x" aria-hidden="true"></i>
+            </a>
+        </li>
+        <li  class="instagram">
+            <a  [href]="instagram" target="_blank">
+                <i class="fa fa-instagram fa-2x" aria-hidden="true"></i>
+            </a>
+        </li>
+        <li  class="youtube">
+            <a  [href]="youtube" target="_blank">
+                <i class="fa fa-youtube fa-2x" aria-hidden="true"></i>
+            </a>
+        </li>
+        <li *ngIf="muestraWhats" class="whatsapp">
+            <a [href]="whatsapp" target="_blank">
+                <i class="fa fa-whatsapp fa-2x" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>

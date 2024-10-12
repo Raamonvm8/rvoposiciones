@@ -1,0 +1,181 @@
+.social-links {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+/*WHITE*/
+.white ul li {
+    width: 45px;
+    height: 45px;
+    line-height: 45px;
+    margin: 0 10px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 50%;
+    border: 3px solid rgb(248, 252, 255);
+    float: left;
+    transition: all 0.3s ease;
+}
+.white ul li .fa {
+    color:rgb(248, 252, 255);
+    margin-top: 6px;
+    transition: all 0.3s ease;
+}
+
+
+.white ul li:hover.facebook {
+    border: 3px solid #3b5998;
+    box-shadow: 0 0 15px #ffffff;
+    transition: all 0.3 ease;
+}
+.white ul li:hover .fa-facebook {
+    color: #3b5998;
+    text-shadow: 0 0 15px #fefefe;
+    transition: all 0.3 ease;
+}
+
+.white ul li:hover.twitter {
+    border: 3px solid #00acee;
+    box-shadow: 0 0 15px #ffffff;
+    transition: all 0.3 ease;
+}
+.white ul li:hover .fa-twitter {
+    color: #00acee;
+    text-shadow: 0 0 15px #fefefe;
+    transition: all 0.3 ease;
+}
+
+.white ul li:hover.instagram {
+    border: 3px solid #bc2a8d;
+    box-shadow: 0 0 15px #ffffff;
+    transition: all 0.3 ease;
+}
+.white ul li:hover .fa-instagram {
+    color: #bc2a8d;
+    text-shadow: 0 0 15px #ffffff;
+    transition: all 0.3 ease;
+}
+
+.white ul li:hover.youtube {
+    border: 3px solid #ff0200;
+    box-shadow: 0 0 15px #ffffff;
+    transition: all 0.3 ease;
+}
+.white ul li:hover .fa-youtube {
+    color: #ff0200;
+    text-shadow: 0 0 15px #ffffff;
+    transition: all 0.3 ease;
+}
+
+.white ul li:hover.whatsapp {
+    border: 3px solid #19e631;
+    box-shadow: 0 0 15px #ffffff;
+    transition: all 0.3 ease;
+}
+.white ul li:hover .fa-whatsapp {
+    color: #19e631;
+    text-shadow: 0 0 15px #ffffff;
+    transition: all 0.3 ease;
+}
+
+.white ul li:hover.tiktok {
+    border: 3px solid #000000;
+    box-shadow: 0 0 15px #ffffff;
+    transition: all 0.3 ease;
+}
+.white ul li:hover .fa-tiktok {
+    color: #000000;
+    text-shadow: 0 0 15px #000000;
+    transition: all 0.3 ease;
+    filter: invert(100%) sepia(0%) saturate(7547%) hue-rotate(150deg) brightness(93%) contrast(108%);
+
+}
+.fa-tiktok {
+    width: 30px; 
+    height: auto; 
+    margin-top: 6px;
+}
+.social-links li a img.fa-tiktok {
+    color: #000000;
+    text-shadow: 0 0 15px #000000;
+    transition: all 0.3 ease;
+    filter: invert(100%) sepia(0%) saturate(7547%) hue-rotate(150deg) brightness(93%) contrast(108%);
+}
+
+/*BLACK*/
+.black ul li {
+    width: 45px;
+    height: 45px;
+    line-height: 45px;
+    margin: 0 10px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 50%;
+    border: 3px solid #b0c745;
+    float: left;
+    transition: all 0.3s ease;
+}
+.black ul li .fa {
+    color:#b0c745;
+    margin-top: 6px;
+    transition: all 0.3s ease;
+}
+
+.black ul li:hover.facebook {
+    box-shadow: 0 0 15px #000000;
+    transition: all 0.3 ease;
+}
+.black ul li:hover .fa-facebook {
+    text-shadow: 0 0 15px #ffffff;
+    transition: all 0.3 ease;
+}
+
+.black ul li:hover.twitter {
+    box-shadow: 0 0 15px #000000;
+    transition: all 0.3 ease;
+}
+.black ul li:hover .fa-twitter {
+    text-shadow: 0 0 15px #ffffff;
+    transition: all 0.3 ease;
+}
+
+.black ul li:hover.instagram {
+    box-shadow: 0 0 15px #000000;
+    transition: all 0.3 ease;
+}
+.black ul li:hover .fa-instagram {
+    text-shadow: 0 0 15px #ffffff;
+    transition: all 0.3 ease;
+}
+
+.black ul li:hover.whatsapp {
+    border: 3px solid #19e631;
+    box-shadow: 0 0 15px #ffffff;
+    transition: all 0.3 ease;
+}
+.black ul li:hover .fa-whatsapp {
+    color: #19e631;
+    text-shadow: 0 0 15px #ffffff;
+    transition: all 0.3 ease;
+}
+
+.black ul li:hover.tiktok {
+    border: 3px solid #b0c745;
+    box-shadow: 0 0 15px #000000;
+    transition: all 0.3 ease;
+}
+.black ul li:hover .fa-tiktok {
+    color: #b0c745;
+    text-shadow: 0 0 15px #b0c745;
+    transition: all 0.3s ease;
+    filter: invert(66%) sepia(73%) saturate(557%) hue-rotate(22deg) brightness(95%) contrast(93%);
+
+}
+.black li a img.fa-tiktok {
+    color: #b0c745;
+    text-shadow: 0 0 15px #b0c745;
+    transition: all 0.3s ease;
+    filter: invert(66%) sepia(73%) saturate(557%) hue-rotate(22deg) brightness(95%) contrast(93%);
+}

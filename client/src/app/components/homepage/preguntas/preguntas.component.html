@@ -1,0 +1,13 @@
+   
+    <div class="faq-container">
+        <h2>PREGUNTAS FRECUENTES</h2>
+        <div class="faq-item" *ngFor="let pregunta of preguntas; let i = index">
+          <div class="faq-question" (click)="toggleAnswer(i)">
+            <span class="faq-icon">{{ pregunta.isOpen ? '-' : '+' }}</span>
+            <h3>{{ pregunta.titulo }}</h3>
+          </div>
+          <div class="faq-answer" *ngIf="pregunta.isOpen">
+            <p>{{ pregunta.respuesta }}</p>
+          </div>
+        </div>
+    </div>

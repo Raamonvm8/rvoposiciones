@@ -1,0 +1,41 @@
+<section class="wrapper">
+    <div class="site-logo">
+        <img (click)="indexActual(-1)" routerLink="/home" src="../../../../favicon.ico" class="custom-logo" alt="Ludenatura" decoding="async" fetchpriority="high">     		
+    </div>
+    <nav>
+        <a (click)="indexActual(i)" [ngClass]="{'selected': selectedIndex === i}" [routerLink]="item.ruta" *ngFor="let item of items ; let i = index">
+            {{item.title}}
+        </a>
+        
+    </nav>
+    <div class="login-button-container">
+        <button (click)="toggleLoginForm()" *ngIf="!isLoggedIn">MIEMBROS</button>
+        <div *ngIf="isLoggedIn" class="welcome-message">
+            <button (click)="logout()">Cerrar sesión</button>
+        </div>
+    </div>
+
+    <!-- formulario de Login  -->
+    <div class="modal" *ngIf="muestraLogin">
+        <div class="modal-content">
+            <span class="close" (click)="toggleLoginForm()">&times;</span>
+            <form (ngSubmit)="onSubmit()" class="login-form">
+                <input type="text" [(ngModel)]="username" name="username" placeholder="Usuario" required>
+                <input type="password" [(ngModel)]="password" name="password" placeholder="Contraseña" required>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="hamburger-menu" (click)="toggleMenu()">
+        &#9776;
+    </div>
+
+    <!-- Menú que se despliega en pantallas pequeñas -->
+    <div class="mobile-nav" *ngIf="isMenuOpen">
+        <a routerLink="">Option0</a>
+        <a routerLink="">Option1</a>
+        <a routerLink="">Option2</a>
+        <a routerLink="">Option3</a>
+    </div>
+</section>

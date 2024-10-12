@@ -1,0 +1,62 @@
+<h1>MATERIALES</h1>
+
+<!-- Recorre los recursos dinámicamente -->
+<!-- Añade un identificador único al recurso -->
+<form *ngFor="let recurso of recursos; let i = index" (ngSubmit)="onUpload(recurso)" enctype="multipart/form-data">
+    <div class="recurso-header">
+        <!-- Muestra el título como texto o campo editable según el estado -->
+        <span (click)="toggleRecurso(recurso)" class="toggle-icon">
+            {{ recurso.isExpanded ? '▼' : '▶' }}  <!-- Cambia el símbolo según el estado -->
+        </span>
+        <!-- Campo editable -->
+        <div *ngIf="recurso.isEditing" class="edit-recursos">
+            <input [(ngModel)]="recurso.name" name="recurso-{{ i }}" />
+            <button type="button" (click)="saveRecurso(recurso)">Guardar</button>
+            <button type="button" (click)="cancelEdit(recurso)">Cancelar</button>
+        </div>
+        <h2>
+            <span *ngIf="!recurso.isEditing">{{ recurso.name }}
+                <span (click)="editRecurso(recurso)" class="edit-icon">✏️</span>
+            </span>
+            <a class="x-button" (click)="deleteRecurso(recurso)">x</a>
+        </h2>
+
+        
+    </div>
+
+    <div *ngIf="recurso.isExpanded" class="recursos-display">
+        <input type="file" (change)="onFileSelected($event, recurso)">
+        <button type="submit">Subir</button>
+
+        <div *ngIf="uploadedFiles[recurso.id]">
+            <div *ngFor="let file of uploadedFiles[recurso.id]">
+                <div class="container-add">
+                    <img [src]="getIconForFile(file.extension)" alt="file icon" class="file-icon">
+                    <!-- Estado en edicion -->
+                    <div class="edition-separate">
+                        <!-- Muestra el nombre como enlace si no está en modo edición -->
+                        <a *ngIf="!file.isEditing" [href]="file.url" target="_blank">{{ file.fileNameOriginal }}</a>
+                      
+                        <!-- Muestra el campo de edición si está en modo edición -->
+                        <input *ngIf="file.isEditing" [(ngModel)]="file.newFileName" placeholder="Editar nombre" name="editFileName-{{ file.filename }}"/>
+                      
+                        <!-- Botón para entrar en modo edición -->
+                        <i (click)="editFileName(file)" *ngIf="!file.isEditing" class="fa fa-pencil" aria-hidden="true" style="cursor:pointer; margin-left:40px; margin-right: 10px;"></i>
+                      
+                        <!-- Botón para guardar el nuevo nombre -->
+                        <button *ngIf="file.isEditing" (click)="saveFileName(file, recurso.name)">Guardar</button>
+                      
+                        <!-- Botón para eliminar el archivo -->
+                        <i (click)="deleteFile(recurso.id, file)" class="fa fa-trash" aria-hidden="true"></i>
+                      </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<div class="container-center">
+    <button class="add-button" (click)="addRecurso()">+</button>
+    
+</div>

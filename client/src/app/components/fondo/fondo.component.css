@@ -1,0 +1,38 @@
+
+.fondo {
+    background-color: rgba(246, 252, 221, 0.7);
+    text-align: center;
+    padding: 50px 0px;
+}
+
+.fondo a{
+    font-size: 2rem;
+    padding: 30px 60px;
+    color: #b0c745;
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    letter-spacing: 10px;
+    cursor: default;
+    background-color: rgba(247, 232, 101, 0.3) ;
+    border-radius: 5px;
+    border: 2px solid #b0c745;
+    display: inline-block;
+}
+
+.fondo-no-padding {
+    background-color: rgba(213, 221, 255, 0.7);
+    text-align: center;
+    padding: 0 0 20px 0;
+}
+
+
+@media screen and (width < 35rem) {
+
+    .fondo a{
+        font-size: 1.6rem;
+        letter-spacing: 5px;
+    padding: 30px 25px;
+    color: #b0c745;
+    
+}
+}

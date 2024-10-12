@@ -1,0 +1,4 @@
+<div [ngClass]="{'fondo': haySection, 'fondo-no-padding': !haySection}">
+        <a *ngIf="haySection" >{{section}}</a>
+        <ng-content></ng-content>
+</div>

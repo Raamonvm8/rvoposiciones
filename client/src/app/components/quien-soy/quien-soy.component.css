@@ -1,0 +1,71 @@
+/* Contenedor principal */
+.quien-soy-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 20px;
+    background-color: #f7f7f7;
+  }
+  
+  /* Contenido interno */
+  .quien-soy-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 1200px;
+    background-color: white;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 40px;
+  }
+  
+  /* Título */
+  .quien-soy-content h1 {
+    font-size: 36px;
+    color: #042d64;
+    margin-bottom: 20px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: bold;
+  }
+  
+  /* Descripción */
+  .description {
+    font-size: 18px;
+    color: #7f7f7f;
+    line-height: 1.6;
+    text-align: center;
+    margin-bottom: 30px;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  /* Estilo para la imagen */
+  .quien-soy-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: solid 2px #ad9551;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  @media (min-width: 768px) {
+    .quien-soy-content {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  
+    .quien-soy-text {
+      flex: 1;
+      padding-right: 20px;
+    }
+  
+    .quien-soy-image {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  
+    .description {
+      text-align: left;
+    }
+  }

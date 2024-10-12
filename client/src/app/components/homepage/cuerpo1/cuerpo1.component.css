@@ -1,0 +1,90 @@
+.container-1 {
+    padding-bottom: 50px;
+    justify-content: center; 
+    text-align: center;
+}
+
+.content {
+    margin: 3% 10%;
+    background-color: white;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.686);
+    border-radius: 8px;
+    padding: 35px 15px;
+}
+
+h1 {
+    font-size: 40px;
+    color: #042d64;
+    font-weight: bold;
+    font-family: Roboto;
+    margin: 0;
+}
+
+.content p{
+
+    font-size: 20px;
+    font-weight: bold;
+    font-family: Roboto;
+    color: #ad9551;
+    margin: 0;
+}
+
+.button {
+    display: inline-block;
+    padding: 10px 80px;
+    margin: 20px 0;
+    background-color: #ad9551;
+    color: white;
+    font-weight: bold;
+    font-family: Roboto;
+    border-radius: 40px;
+    font-size: 16px;
+    transition: background-color 0.3s, transform 0.3s;
+    box-shadow: 1px 3px 8px black;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #7a6838;
+    color: #f7f7f7;
+    transform: scale(0.95);
+}
+
+
+
+.images-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    gap: 50px;
+}
+
+.image-item {
+    margin: 10px;
+    text-align: center;
+    width: 150px;
+    font-weight: bold;
+    font-family: Roboto;
+}
+
+.image-item img {
+    max-width: 50%;
+    height: auto;
+    background-color: #ad9551;
+    padding: 10px;
+    border-radius: 5px;
+    border: solid 1.5px #042d64;
+
+}
+
+.image-item h3 {
+    font-size: 19px;
+    margin: 5px 0;
+    color: #042d64;
+}
+
+.image-item p {
+    font-size: 14px;
+    color: #7f7f7f;
+}

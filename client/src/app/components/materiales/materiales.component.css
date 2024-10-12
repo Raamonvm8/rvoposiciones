@@ -1,0 +1,184 @@
+
+h1 {
+    font-size: 40px;
+    color: #042d64;
+    font-family: 'Roboto', sans-serif;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+h2 {
+    color: #042d64;
+    font-family: Roboto;
+    font-weight: bold;
+    margin: 0 ;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    width: 100%;
+}
+
+h4 {
+    color: #042d64;
+    font-family: Roboto;
+    font-weight: bold;
+    margin: 0 ;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 2% 3%;
+    align-items: start;
+    padding: 20px;
+    gap: 10px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 1px 2px 6px black;
+}
+
+
+form button {
+    width: 80px;
+    justify-content: center;
+    border: solid 2px #ad9551;
+    border-radius: 6px;
+    cursor: pointer;
+    background-color: #042d64;
+    color: white;
+}
+
+form button:hover{
+    background-color: #04244d;
+}
+
+.edit-recursos {
+    display: flex;
+    gap: 10px;
+    align-items: center; 
+    padding-right: 63%;
+    width: 100%;
+}
+
+.container-add {
+    display: flex;
+    gap: 10px;
+
+}
+
+.button-add {
+    margin-top: 20px;
+    font-size: 24px;
+    padding: 10px 15px;
+}
+  
+.recurso-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    width: 100%;
+}
+
+.edit-icon {
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.recurso-header input {
+    font-size: 20px;
+    margin-left: 5px;
+}
+
+.recurso-header a {
+    text-align: right;
+}
+
+
+.container-add {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid rgb(198, 198, 198);
+    padding: 10px;
+    width: 100%;
+}
+
+.container-add i{
+    color: #ad9551;
+    cursor: pointer;
+   
+}
+
+.container-add a {
+    margin-right: 10px; 
+    text-decoration: none;
+    color: #042d64;
+    font-family: roboto;
+}
+
+.container-add a:hover {
+    text-decoration: underline;
+}
+
+.container-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 20px;
+    gap: 20px;
+}
+  
+.add-button {
+    font-size: 24px;
+    padding: 10px 20px;
+    background-color: #ad9551;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.add-button:hover {
+    background-color: #7f6d3b ;
+}
+
+.x-button {    
+    font-family: Roboto;
+    color: #042d64;
+    cursor: pointer;
+    margin-right: 20px;
+}
+
+.file-icon {
+    width: 24px;  /* Tamaño del icono */
+    height: 24px;
+    vertical-align: middle;
+}
+
+.toggle-icon {
+    cursor: pointer; 
+    text-align: center;
+    margin-right: 10px;
+    font-size: 18px; 
+    color: #042d64;
+}
+
+.toggle-icon:hover {
+    color: #ad9551;
+}
+  
+.recursos-display {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 95%;
+}
+
+.edition-separate {
+    display: flex;
+    gap: 10px;
+}
+  
