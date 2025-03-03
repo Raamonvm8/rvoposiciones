@@ -60,13 +60,20 @@ app.use((req, res, next) => {
 // Ruta para el login
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
-
+    
     // Validar las credenciales de prueba
     if (username === 'admin' && password === 'admin') {
         return res.json({ message: 'Login exitoso', user: { username } });
       } else {
         return res.status(401).json({ message: 'Credenciales incorrectas' });
       }
+});
+
+app.get('api/log', (req, res) => {
+  res.send({
+    usuario: username,
+    passw: password
+  });
 });
 
 
@@ -158,4 +165,4 @@ app.listen(port, () => {
   console.log(`Servidor corriendo en http://localhost:${port}`);
 });
 
-exports.api = functions.https.onRequest(app);
+//exports.api = functions.https.onRequest(app);
