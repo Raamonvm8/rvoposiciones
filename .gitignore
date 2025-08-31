@@ -64,7 +64,7 @@ node_modules/
 
 # dotenv environment variables file
 server/config/.env
-server/config/rvoposiciones-firebase-adminsdk-ywq4w-358b922fb0.json
+server/config/rvoposiciones-firebase-admin.json
 
 # dataconnect generated files
 .dataconnect
