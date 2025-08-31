@@ -2,7 +2,7 @@
 
 const express = require('express');
 const admin = require('firebase-admin');
-const serviceAccount = require('./config/rvoposiciones-firebase-adminsdk-ywq4w-358b922fb0.json');
+const serviceAccount = require('./config/rvoposiciones-firebase-admin.json');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');

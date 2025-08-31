@@ -63,8 +63,8 @@ node_modules/
 .yarn-integrity
 
 # dotenv environment variables file
-config/.env
-config/rvoposiciones-firebase-adminsdk-ywq4w-358b922fb0.json
+server/config/.env
+server/config/rvoposiciones-firebase-adminsdk-ywq4w-358b922fb0.json
 
 # dataconnect generated files
 .dataconnect
