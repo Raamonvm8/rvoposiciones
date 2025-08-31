@@ -2,11 +2,11 @@ import { NgClass, NgIf, NgStyle } from '@angular/common';
 import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-social-links',
-  standalone: true,
-  imports: [NgIf, NgClass],
-  templateUrl: './social-links.component.html',
-  styleUrl: './social-links.component.css'
+    selector: 'app-social-links',
+    standalone: true,
+    imports: [NgIf, NgClass],
+    templateUrl: './social-links.component.html',
+    styleUrl: './social-links.component.css'
 })
 export class SocialLinksComponent {
   @Input() facebook: string | undefined;

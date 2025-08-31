@@ -1,0 +1,37 @@
+.carrusel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 50px auto; /* centrado horizontal */
+  position: relative;
+  height: 580px;
+  max-width: 790px; /* ajusta según lo que quieras mostrar */
+  overflow: hidden;  /* recorta los lados */
+  perspective: 1200px;
+}
+
+
+h1 {
+    font-size: 30px;
+    color: #042d64;
+    font-weight: bold;
+    font-family: Roboto;
+    margin: 0;
+}
+
+.slide {
+  position: absolute;
+  transition: all 0.7s ease-in-out;
+  transform-origin: center center;
+  cursor: pointer;
+}
+
+.slide img {
+  width: 130px;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+
+

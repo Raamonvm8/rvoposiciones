@@ -1,71 +1,108 @@
-/* Contenedor principal */
-.quien-soy-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 60px 20px;
-    background-color: #f7f7f7;
-  }
+.quien-soy {
+  padding: 80px 20px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.quien-soy .container {
+  max-width: 1100px;
+  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 40px;
+}
+
+/* Sección intro */
+.quien-soy.intro {
+  background: linear-gradient(135deg, #f5f7fa, #e2e8f0);
+}
+.quien-soy.intro .text {
+  flex: 1;
+}
+.quien-soy.intro .text h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  color: #042d64;
+}
+.quien-soy.intro .text h2 {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  color: #042d64;
+}
+.quien-soy.intro .text p {
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+.quien-soy.intro .image {
+  flex: 1;
+  text-align: center;
+}
+.quien-soy.intro .image img {
+  max-width: 300px;
+  border-top-right-radius: 200px;
+  border-bottom-right-radius: 70px;
+  border-top-left-radius: 50px;
+  border-bottom-left-radius: 50px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
   
-  /* Contenido interno */
-  .quien-soy-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    max-width: 1200px;
-    background-color: white;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    padding: 40px;
-  }
-  
-  /* Título */
-  .quien-soy-content h1 {
-    font-size: 36px;
-    color: #042d64;
-    margin-bottom: 20px;
-    font-family: 'Roboto', sans-serif;
-    font-weight: bold;
-  }
-  
-  /* Descripción */
-  .description {
-    font-size: 18px;
-    color: #7f7f7f;
-    line-height: 1.6;
-    text-align: center;
-    margin-bottom: 30px;
-    font-family: 'Roboto', sans-serif;
-  }
-  
-  /* Estilo para la imagen */
-  .quien-soy-image img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    border: solid 2px #ad9551;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-  }
-  
-  @media (min-width: 768px) {
-    .quien-soy-content {
-      flex-direction: row;
-      justify-content: space-between;
-    }
-  
-    .quien-soy-text {
-      flex: 1;
-      padding-right: 20px;
-    }
-  
-    .quien-soy-image {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-  
-    .description {
-      text-align: left;
-    }
-  }
+  transition: transform 0.2s ease-out;
+  will-change: transform;
+}
+
+/* Sección experiencia */
+.quien-soy.experiencia {
+  background: #fff;
+  text-align: left;
+}
+.quien-soy.experiencia h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #042d64;
+}
+.quien-soy.experiencia p {
+  max-width: 80%;
+  line-height: 1.7;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+/* Sección CTA */
+.quien-soy.cta {
+  background: linear-gradient(55deg, #042d64, #5061adb3);
+  color: white;
+  text-align: center;
+}
+.quien-soy.cta h2 {
+  font-size: 2.2rem;
+  margin-bottom: 15px;
+}
+.quien-soy.cta p {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+}
+.btn-suscripcion {
+  background: linear-gradient(135deg, #ad9551, #6b540f);
+  color: #042d64;
+  font-size: 1.2rem;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+  transition: all 0.3s ease;
+}
+.btn-suscripcion:hover {
+  background: #6b540f;
+  transform: scale(1.05);
+}
+
+.container-final {
+  display: block;
+
+}
+
+.container-final p{
+  margin-top: 50px;
+}

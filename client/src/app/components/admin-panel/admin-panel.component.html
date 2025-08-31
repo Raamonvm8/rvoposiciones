@@ -1,0 +1,32 @@
+<div class="admin-panel">
+  <h2>Usuarios registrados</h2>
+
+  <table class="users-table">
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>Verificado</th>
+        <th>Nombre</th>
+        <th>Fecha de registro</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users">
+        <td>{{user.email}}</td>
+        <td>
+          <span [class.verified]="user.emailVerified" 
+                [class.not-verified]="!user.emailVerified">
+            {{ user.emailVerified ? '✅' : '❌' }}
+          </span>
+        </td>
+        <td>{{user.fullName || '—'}}</td>
+        <td>{{user.createdAt | date:'medium'}}</td>
+        <td>
+          <button (click)="verifyUser(user.uid)" [disabled]="user.emailVerified">✔ Verificar</button>
+          <button (click)="deleteUser(user.uid)" class="danger">🗑 Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

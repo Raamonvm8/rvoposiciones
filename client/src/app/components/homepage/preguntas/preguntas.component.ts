@@ -2,11 +2,11 @@ import { NgFor, NgIf } from '@angular/common';
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-preguntas',
-  standalone: true,
-  imports: [NgFor, NgIf],
-  templateUrl: './preguntas.component.html',
-  styleUrl: './preguntas.component.css'
+    selector: 'app-preguntas',
+    standalone: true,
+    imports: [NgFor, NgIf],
+    templateUrl: './preguntas.component.html',
+    styleUrl: './preguntas.component.css'
 })
 export class PreguntasComponent {
   preguntas = [

@@ -1,0 +1,15 @@
+1. En los botones de comienza tu curso de formación y tal ir a pago por el curso únicamente, 
+    que está dividido en curso primaria, curso PT y curso secundaria, y una vez pagado 
+    arriba se desoculta la sección curso donde el usuario podrá ver horarios de clases y demás
+    informaciones del curso.
+
+2. En la sección materiales, si no está pagado hacerla borrosa y con container en medio 
+    explicando los materiales que incluyen el precio y cada cual.
+
+3. En la sección talleres desplegar la serie de talleres que se van a impartir con sus fechas
+    y explicando cada uno de ellos con opción de subscripción y acceso directo (pasaria a 
+    estar arriba los talleres pagados).
+
+4. Sección recursos: estará una plataforma modo symbaloo. Puede tener un diseño guay 
+    para que la gente vea lo que es pero sin acceso con opción a subscripción.
+

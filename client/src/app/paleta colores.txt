@@ -1,0 +1,5 @@
+
+azul: #042d64
+dorado: #ad9551
+gris: #7f7f7f
+fondo: #d5ddffb3

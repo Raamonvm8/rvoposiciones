@@ -1,0 +1,79 @@
+{
+  "recursos": [
+    {
+      "id": 1,
+      "name": "Recurso 1",
+      "archivos": [
+        {
+          "url": "http://localhost:3000/uploads/62c6bc0beee9410fe137d91e_1754131079128.webp",
+          "name": "62c6bc0beee9410fe137d91e_1754131079128.webp",
+          "originalName": "62c6bc0beee9410fe137d91e.webp",
+          "extension": ".webp",
+          "title": ""
+        },
+        {
+          "url": "http://localhost:3000/uploads/62c6bc0beee9410fe137d91e_1754131471161.webp",
+          "name": "62c6bc0beee9410fe137d91e_1754131471161.webp",
+          "originalName": "62c6bc0beee9410fe137d91e.webp",
+          "extension": ".webp",
+          "title": ""
+        },
+        {
+          "url": "http://localhost:3000/uploads/62c6bc0beee9410fe137d91e_1754131499799.webp",
+          "name": "62c6bc0beee9410fe137d91e_1754131499799.webp",
+          "originalName": "62c0fe137d91e.webp",
+          "extension": ".webp",
+          "title": ""
+        },
+        {
+          "url": "http://localhost:3000/uploads/agile_project_sprint_rollout_plan_framework_slide01_1754131520161.jpg",
+          "name": "agile_project_sprint_rollout_plan_framework_slide01_1754131520161.jpg",
+          "originalName": "agile_project_sprint_rollout_plan_framework_slide01.jpg",
+          "extension": ".jpg",
+          "title": ""
+        },
+        {
+          "url": "http://localhost:3000/uploads/Defensas CExt TFG 2425_1755651289674.pdf",
+          "name": "Defensas CExt TFG 2425_1755651289674.pdf",
+          "originalName": "Defensas CExt TFG 2425.pdf",
+          "extension": ".pdf",
+          "title": ""
+        },
+        {
+          "url": "http://localhost:3000/uploads/Defensas CExt TFG 2425_1755651334503.pdf",
+          "name": "Defensas CExt TFG 2425_1755651334503.pdf",
+          "originalName": "Defensast.pdf",
+          "extension": ".pdf",
+          "title": ""
+        },
+        {
+          "url": "http://localhost:3000/uploads/Instalacion MV Fedora completa_1756467421239.pdf",
+          "name": "Instalacion MV Fedora completa_1756467421239.pdf",
+          "originalName": "completa.pdf",
+          "extension": ".pdf",
+          "title": ""
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Recurso 3",
+      "archivos": []
+    },
+    {
+      "id": 4,
+      "name": "Recurso 2",
+      "archivos": []
+    },
+    {
+      "id": 5,
+      "name": "Recurso 2",
+      "archivos": []
+    },
+    {
+      "id": 6,
+      "name": "Recurso 2",
+      "archivos": []
+    }
+  ]
+}

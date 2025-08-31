@@ -1,0 +1,58 @@
+.admin-panel {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #f7f9fc;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.admin-panel h2 {
+  text-align: center;
+  color: #042d64;
+  margin-bottom: 20px;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.users-table thead {
+  background-color: #042d64;
+  color: white;
+}
+
+.users-table thead th{
+  text-align: center;
+}
+
+.users-table th, .users-table td {
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.users-table tbody tr {
+  background-color: white;
+  border-bottom: 1px solid #e0e0e0;
+  transition: background-color 0.2s;
+
+}
+
+
+.users-table tbody tr:hover {
+  background-color: #f1f6fb;
+}
+
+.verified {
+  color: green;
+  font-weight: bold;
+}
+
+.not-verified {
+  color: red;
+  font-weight: bold;
+}

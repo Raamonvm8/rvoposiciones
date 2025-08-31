@@ -4,27 +4,53 @@ import { NgClass, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
 import { AuthService } from '../../../services/auth.service';
 import { RouterLink } from '@angular/router';
+import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, app, DB } from '../../../../environments/environment';
+import { HttpClient } from '@angular/common/http';
+
+
 
 
 @Component({
-  selector: 'app-header',
-  standalone: true,
-  imports: [NgIf, FormsModule, RouterLink, NgClass, NgFor],
-  templateUrl: './header.component.html',
-  styleUrl: './header.component.css'
+    selector: 'app-header',
+    standalone:true,
+    imports: [NgIf, FormsModule, RouterLink, NgClass, NgFor],
+    templateUrl: './header.component.html',
+    styleUrl: './header.component.css'
 })
 export class HeaderComponent {
 
-  username: string = '';
+  fullname: string = '';
+  email: string = '';
   password: string = '';
   isLoggedIn: boolean = false;
   muestraLogin: boolean = false;
   errorMessage: string = '';
   selectedIndex: number = -1;
   isMenuOpen: boolean = false;
-  items: {title: string, ruta: string}[] = [{title: 'QUIÉN SOY', ruta: 'quiénsoy'}, {title: 'MIS LIBROS', ruta: 'libros'}, {title: 'MATERIALES', ruta: 'materiales'}, {title: 'OPTION4', ruta: ''}];
+  showRegisterModal = false;
+  registerStep = 1;
+  activeTab: 'form' | 'plans' = 'form';
 
-  constructor(private authService: AuthService) {}
+  registerData = {
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    cursos: {
+      primaria: false,
+      PT: false,
+      secundaria: false
+    },
+    materiales: [],
+    talleres: [],
+    recursos: false
+  };
+
+  items: {title: string, ruta: string}[] = [{title: 'SOBRE RAMÓN', ruta: 'quiénsoy'}, {title: 'MIS LIBROS', ruta: 'libros'}, {title: 'MATERIALES', ruta: 'materiales'}, {title: 'FORMACIÓN', ruta: ''}];
+
+  constructor(private authService: AuthService, private http: HttpClient) {}
 
   ngOnInit(){
     const savedIndex = localStorage.getItem('selectedIndex');
@@ -34,31 +60,113 @@ export class HeaderComponent {
   }
 
   onSubmit(): void {
-    this.authService.login(this.username, this.password).subscribe({
-      next: (response) => {
+    signInWithEmailAndPassword(auth, this.email, this.password)
+      .then(async (userCredential) => {
+        const user = userCredential.user;
+
+        if (!user.emailVerified) {
+          alert('Debes verificar tu email antes de poder acceder.');
+          return; 
+        }
+
         this.isLoggedIn = true;
-        this.errorMessage = '';
-        this.muestraLogin = !this.muestraLogin;
-        console.log(`Usuario logueado: ${this.username}`, response);
+        this.muestraLogin = false;
+        const token = await user.getIdToken();
 
-      },
-      error: (error) => {
+        // ✅ Enviar token al backend para crear/actualizar usuario en MySQL
+        this.http.post('http://localhost:3000/api/users', {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        }).subscribe({
+          next: () => console.log('Usuario sincronizado con MySQL'),
+          error: err => console.error('Error al sincronizar usuario:', err)
+        });
+        console.log('Usuario logueado:', user);
+      })
+      .catch((error) => {
+        console.error('Error de login:', error);
         this.errorMessage = 'Credenciales incorrectas';
-        console.log('Error de login:', error);
-      }
-    });
-  }
+      });
 
+  }
+  
   logout(): void {
-    // Aquí puedes manejar el cierre de sesión, como eliminar el token del localStorage
     this.isLoggedIn = false;
-    this.username = '';
+    this.email = '';
     this.password = '';
   }
 
   // Método para mostrar u ocultar el formulario
-  toggleLoginForm() {
-    this.muestraLogin = !this.muestraLogin;
+  toggleLoginForm(x: string) {
+    if(x=='login'){
+      this.muestraLogin = !this.muestraLogin;
+    }else{
+      this.showRegisterModal = true;
+      this.registerStep = 1;
+      this.activeTab = 'form';
+    }
+  }
+  setActiveTab(tab: 'form' | 'plans') {
+    this.activeTab = tab;
+  }
+
+  goToPlans() {
+    if (this.registerData.password !== this.registerData.confirmPassword) {
+      alert('Las contraseñas no coinciden');
+      return;
+    }
+
+    if (!this.registerData.email || !this.registerData.password) {
+      alert('Completa todos los campos');
+      return;
+    }
+    this.registerStep = 2;
+    
+  }
+
+  choosePlan(plan: string) {
+    if (!this.registerData.email || !this.registerData.password) {
+      alert('Por favor completa los campos de registro antes de elegir un plan');
+      return;
+    }
+
+    console.log(`Plan elegido: ${plan}`);
+
+    // Registro en Firebase
+    createUserWithEmailAndPassword(auth, this.registerData.email, this.registerData.password)
+      .then(async (userCredential) => {
+        const user = userCredential.user;
+        auth.languageCode = 'es';
+
+        
+        sendEmailVerification(user).then(() => {
+          alert('Se ha enviado un email de verificación. Verifica para iniciar sesión.');
+        });
+
+        const token = await user.getIdToken();
+        this.http.post('http://localhost:3000/api/users', this.registerData, {
+          headers: { Authorization: `Bearer ${token}` }
+        }).subscribe({
+          next: () => console.log('Usuario guardado en MySQL'),
+          error: err => console.error('Error guardando en MySQL:', err)
+        });
+
+        this.closeRegisterModal();
+        this.registerStep = 1; // vuelve al formulario
+      })
+      .catch((error) => {
+        console.error('Error registrando:', error);
+        alert(error.message);
+      });
+
+
+  }
+
+  closeRegisterModal() {
+    this.showRegisterModal = false;
+    this.registerStep = 1;
+  }
+  goBackToForm() {
+    this.registerStep = 1;
   }
 
   toggleMenu() {

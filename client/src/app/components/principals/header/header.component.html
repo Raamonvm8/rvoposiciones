@@ -9,21 +9,74 @@
         
     </nav>
     <div class="login-button-container">
-        <button (click)="toggleLoginForm()" *ngIf="!isLoggedIn">MIEMBROS</button>
-        <div *ngIf="isLoggedIn" class="welcome-message">
+        <div *ngIf="!isLoggedIn" class="auth-buttons">
+            <button class="btn btn-login" (click)="toggleLoginForm('login')">ACCESO</button>
+        </div>
+
+        <div *ngIf="isLoggedIn" class="cierre-sesion">
             <button (click)="logout()">Cerrar sesión</button>
         </div>
     </div>
 
-    <!-- formulario de Login  -->
     <div class="modal" *ngIf="muestraLogin">
         <div class="modal-content">
-            <span class="close" (click)="toggleLoginForm()">&times;</span>
+            <h2>Inicio de sesión</h2>
+            <span class="close" (click)="toggleLoginForm('login')">&times;</span>
             <form (ngSubmit)="onSubmit()" class="login-form">
-                <input type="text" [(ngModel)]="username" name="username" placeholder="Usuario" required>
+                <input type="text" [(ngModel)]="email" name="email" placeholder="Correo electrónico" required>
                 <input type="password" [(ngModel)]="password" name="password" placeholder="Contraseña" required>
                 <button type="submit">Login</button>
+                <button class="btn btn-login" (click)="toggleLoginForm('register')">No soy miembro</button>
+
             </form>
+        </div>
+    </div>
+
+    <div class="modal" *ngIf="showRegisterModal">
+        <div class="modal-content">
+            <span class="close" (click)="closeRegisterModal()">&times;</span>
+            <h2 *ngIf="registerStep === 1">Registro</h2>
+            <h2 *ngIf="registerStep === 2">Elige tu plan</h2>
+
+            <!-- Paso 1: Formulario de registro -->
+            <div *ngIf="registerStep === 1" class="tab-content">
+            <form (ngSubmit)="goToPlans()">
+                <input type="text" placeholder="Nombre completo" [(ngModel)]="registerData.fullName" name="fullName" required>
+                <input type="email" placeholder="Correo electrónico" [(ngModel)]="registerData.email" name="email" required>
+                <input type="password" placeholder="Contraseña" [(ngModel)]="registerData.password" name="password" required>
+                <input type="password" placeholder="Repite la contraseña" [(ngModel)]="registerData.confirmPassword" name="confirmPassword" required>
+
+                <button type="submit" class="btn btn-register">Siguiente</button>
+            </form>
+            </div>
+
+            <!-- Paso 2: Planes -->
+            <div *ngIf="registerStep === 2" class="tab-content plans">
+                <div class="plan-card">
+                    <h3>Curso 2026 - 2027</h3>
+                    <p>Curso anual de formación para las oposiciones. Acceso a clases.</p>
+                    <span class="price">39€/mes</span>
+                    <button class="btn btn-register" (click)="choosePlan('membresia')">Elegir</button>
+                </div>
+
+                <div class="plan-card">
+                    <h3>Pago Individual</h3>
+                    <p>Compra cursos, talleres o materiales por separado.</p>
+                    <span class="price">Tarifa fija</span>
+                    <button class="btn btn-register" (click)="choosePlan('individual')">Elegir</button>
+                </div>
+
+                <div class="plan-card">
+                    <h3>Solo Registro</h3>
+                    <p>Registrate ahora, paga más adelante</p>
+                    <button class="btn btn-register" (click)="choosePlan('pack')">Elegir</button>
+                </div>
+
+                <div class="container-backfinish">
+                    <button class="btn btn-back" (click)="goBackToForm()">Atrás</button>
+                    <button class="btn btn-back2" (click)="choosePlan('pack')">Finalizar registro</button>
+                </div>
+            </div>
         </div>
     </div>
 

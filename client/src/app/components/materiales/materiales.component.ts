@@ -2,6 +2,7 @@ import { NgFor, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormsModule, NgModel } from '@angular/forms';
+import { Firestore } from 'firebase/firestore';
 
 interface UploadedFile {
   title: string;
@@ -14,11 +15,11 @@ interface UploadedFile {
 }
 
 @Component({
-  selector: 'app-materiales',
-  standalone: true,
-  imports: [FormsModule, NgFor, NgIf],
-  templateUrl: './materiales.component.html',
-  styleUrl: './materiales.component.css'
+    selector: 'app-materiales',
+    standalone: true,
+    imports: [FormsModule, NgFor, NgIf],
+    templateUrl: './materiales.component.html',
+    styleUrl: './materiales.component.css'
 })
 export class MaterialesComponent {
   selectedFile: File | null = null; 
@@ -29,8 +30,10 @@ export class MaterialesComponent {
     { id: 1, name: 'Recurso 1', isEditing: false, originalName: 'Recurso 1', isExpanded: true }
   ];
 
-  constructor(private http: HttpClient) {}
-
+  constructor(private http: HttpClient) {
+  }
+  
+  
 
   onFileSelected(event: Event, recurso: { id: number }) {
     const input = event.target as HTMLInputElement;
@@ -71,32 +74,35 @@ export class MaterialesComponent {
 
   addRecurso() {
     const newRecurso = { 
-      id: this.recursos.length + 1,  // Generar un ID único
-      name: `Recurso ${this.recursos.length + 1}`, 
-      isEditing: false, 
-      originalName: `Recurso ${this.recursos.length + 1}`, 
-      isExpanded: true 
+      name: `Recurso ${this.recursos.length + 1}`
     };
-    this.recursos.push(newRecurso);
+  
+    fetch('http://localhost:3000/api/recurso', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newRecurso)
+    })
+    .then(response => response.json())
+    .then(data => {
+      this.recursos.push(data.recurso); // Agregar el recurso devuelto por el backend
+    })
+    .catch(error => console.error('Error al crear el recurso:', error));
   }
+  
   
 
   deleteRecurso(recurso: any) {
     const confirmDelete = confirm("¿Seguro que quieres eliminar este apartado?");
 
     if(confirmDelete){
-      this.http.delete(`http://localhost:3000/api/delete/recurso/${recurso.id}`).subscribe (
+      this.http.delete(`http://localhost:3000/api/recurso/${recurso.id}`).subscribe (
         response => {
           console.log("recurso eliminado");
 
           //eliminar en frontend
           this.recursos = this.recursos.filter(r => r !== recurso);
 
-          //eliminar los archivos del recurso
-          for(let uploaded of this.uploadedFiles[recurso.id]){
-            console.log(recurso.recursoName);
-            this.deleteFile(recurso.id, uploaded);
-          }
+          
           delete this.uploadedFiles[recurso.id];
         },
         error => {
@@ -127,7 +133,7 @@ export class MaterialesComponent {
       formData.append('file', this.selectedFile, this.selectedFile.name);
       formData.append('title', this.moduleTitle);
   
-      this.http.post('http://localhost:3000/api/upload', formData)
+      this.http.post(`http://localhost:3000/api/upload/${recurso.id}`, formData)
         .subscribe((response: any) => {
           console.log('Archivo subido:', response);
   
@@ -187,7 +193,7 @@ export class MaterialesComponent {
 
   deleteFile(recursoId: number, file: UploadedFile) {
     const filename = file.filename; // Aquí usamos el nombre del archivo generado
-    this.http.delete(`http://localhost:3000/api/delete/${filename}`)
+    this.http.delete(`http://localhost:3000/api/delete/${recursoId}/${filename}`)
       .subscribe(() => {
         console.log('Archivo eliminado exitosamente');
   

@@ -1,0 +1,17 @@
+<h1>Testimonios de alumnos</h1>
+
+<div class="carrusel"
+     (mousedown)="onDragStart($event)"
+     (mousemove)="onDragMove($event)"
+     (mouseup)="onDragEnd()"
+     (mouseleave)="onDragEnd()"
+     (touchstart)="onDragStart($event)"
+     (touchmove)="onDragMove($event)"
+     (touchend)="onDragEnd()">
+
+  <div class="slide"
+       *ngFor="let t of testimonios; let i = index"
+       [ngStyle]="getSlideStyle(i)">
+    <img [src]="t.img" [alt]="t.alt" draggable="false" />
+  </div>
+</div>

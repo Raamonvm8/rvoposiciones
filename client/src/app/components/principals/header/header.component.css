@@ -11,17 +11,38 @@
 }
 
 .site-logo {
-    width: 25%;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px 0px;
+    padding: 10px 50px;
     cursor: pointer;
 }
 
+.auth-buttons,
+.auth-logged {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.cierre-sesion button {
+    padding: 8px 20px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btn-register, .btn-login{
+    height: 40px;
+}
+
 img {
-    width: 30%;
-    height: auto;
+  max-width: 100px;
 }
 
 .login-button-container {
@@ -33,7 +54,6 @@ img {
 
 .login-button-container button {
     font-weight: bold;
-    padding: 10px 15px;
     border: none;
     background-color: #ffffff; 
     color: #ad9551; 
@@ -41,34 +61,18 @@ img {
     cursor: pointer; 
     transition: transform 0.5s ease;
 }
-.welcome-message {
-    margin-left: 10px; /* Espacio entre el texto y el botón */
-    display: flex; /* Usa flexbox para mantener los elementos en una línea */
-    align-items: center; /* Centra verticalmente los elementos */
-}
 
-.welcome-message button {
-    width: 150px;
-    padding: 10px 15px; /* Espaciado alrededor del botón */
-    font-size: inherit; /* Mantiene el tamaño de fuente del contenedor */
-    border: none; /* Sin borde */
-    background-color: white; /* Color de fondo */
-    color: #ad9551; /* Color del texto */
-    border-radius: 5px; /* Bordes redondeados */
-    cursor: pointer; /* Cursor tipo mano al pasar */
-}
 
 
 .login-button-container button:hover {
-    background-color: #ad9551; 
+    background: linear-gradient(135deg, #ad9551, #6a551d);
     color: white;
     transform: scale(0.97);
 }
 
 nav {
-    width: 70%;
     display: flex;
-    justify-content: center;
+    justify-content: left;
     gap: 6rem;
     position: relative; 
     font-family: Roboto;
@@ -97,20 +101,38 @@ nav a.selected {
     color: #ad9551;
 }
 
-.login-form {
-    display: flex;
-    align-items: center;
+.modal-content {
+    background-color: white; /* Fondo blanco para el formulario */
+    padding: 20px;
+    border-radius: 5px; /* Bordes redondeados */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra */
+    position: relative; /* Para posicionar el botón de cerrar */
 }
 
-.login-form input {
-    margin-left: 10px;
-    padding: 5px;
+.login-form{
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+  padding: 20px 30%;
 }
 
-.login-form button {
-    margin-left: 5px;
-    padding: 5px 10px;
+.login-form input, .tab-content input {
+  width: 100%;
+  height: 45px;
+  padding: 0 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: 0.3s;
+  outline: none;
 }
+
+.login-form input:focus, .tab-content input:focus {
+  border-color: #042d64;
+  box-shadow: 0 0 6px rgba(4,45,100,0.3);
+}
+
 
 
 /* Estilos para el modal */
@@ -127,14 +149,6 @@ nav a.selected {
     background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
 }
 
-/* Contenido del modal */
-.modal-content {
-    background-color: white; /* Fondo blanco para el formulario */
-    padding: 20px;
-    border-radius: 5px; /* Bordes redondeados */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra */
-    position: relative; /* Para posicionar el botón de cerrar */
-}
 
 /* Estilo para el botón de cerrar */
 .close {
@@ -145,31 +159,6 @@ nav a.selected {
     font-size: 24px; /* Tamaño del icono de cerrar */
 }
 
-/* Estilos para el formulario de login */
-.login-form {
-    display: flex;
-    flex-direction: column; /* Coloca los inputs en columna */
-}
-
-.login-form input {
-    margin-bottom: 10px; /* Espaciado entre los inputs */
-    padding: 10px; /* Relleno para los inputs */
-    border: 1px solid #ccc; /* Borde gris */
-    border-radius: 5px; /* Bordes redondeados para inputs */
-}
-
-.login-form button {
-    padding: 10px;
-    background-color: #007bff; /* Color de fondo para el botón */
-    color: white; /* Color del texto */
-    border: none; /* Sin borde */
-    border-radius: 5px; /* Bordes redondeados para el botón */
-    cursor: pointer; /* Cursor tipo mano al pasar */
-}
-
-.login-form button:hover {
-    background-color: #0056b3; /* Color al pasar el mouse sobre el botón */
-}
 
 .hamburger-menu {
     display: none;
@@ -201,6 +190,201 @@ nav a.selected {
 .mobile-nav a:hover {
     color: #ad9551; /* Cambiar el color al pasar el mouse */
 }
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 12px;
+  text-align: center;
+  padding: 30px;
+  width: 600px;
+  max-width: 90%;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  animation: fadeIn 0.3s ease;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  top: 15px; right: 20px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #ddd;
+}
+
+.tabs button {
+  flex: 1;
+  padding: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  color: #555;
+  transition: 0.3s;
+}
+
+.tab-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+}
+
+/* Formulario de registro */
+.tab-content form {
+  display: flex;
+  flex-direction: column;
+  width: 40%;
+  max-width: 400px;
+  background: #fff; /* Fondo blanco limpio */
+  padding: 30px 25px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  align-items: center;
+  gap: 15px;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.login-form button, .btn-register {
+  background: linear-gradient(135deg, #042d64, #06408f);
+  color: #fff;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  width: 100%;
+  transition: 0.3s ease-in-out;
+}
+
+.login-form button:hover, .btn-register:hover {
+  background: linear-gradient(135deg, #06408f, #0a5ed9);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(4, 45, 100, 0.35);
+}
+
+
+
+/* Título del modal */
+.modal-content h2 {
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 22px;
+  color: #042d64;
+}
+
+
+.tabs button.active {
+  border-bottom: 3px solid #042d64;
+  color: #042d64;
+}
+
+/* Planes */
+.plans {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  justify-items: center;
+  align-items: start
+}
+
+.plan-card {
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 20px;
+
+  text-align: center;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 290px; 
+}
+
+.plan-card button {
+  margin-top: auto;
+}
+
+
+.plan-card:hover {
+  background: #eef4fb;
+  transform: translateY(-5px);
+}
+
+.price {
+  font-size: 18px;
+  font-weight: bold;
+  color: #042d64;
+  display: block;
+  margin: 10px 0;
+}
+
+.container-backfinish {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.btn-back,
+.btn-back2 {
+  flex: 1;       
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.btn-back {
+  background-color: #ccc;
+  max-width: 100px;  
+  color: #333;
+  margin-right: auto;
+}
+.btn-back2 {
+  background: linear-gradient(135deg, #042d64, #06408f);
+  max-width: 150px;  
+  color: #ffffff;
+  margin-left: auto;
+}
+
+.btn-back:hover {
+  background-color: #bbb;
+}
+.btn-back2:hover{
+    background: linear-gradient(135deg, #06408f, #0a5ed9);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(4, 45, 100, 0.35);
+}
+
+
+@keyframes fadeIn {
+  from {opacity: 0; transform: scale(0.95);}
+  to {opacity: 1; transform: scale(1);}
+}
+
 
 /* Media queries para pantallas pequeñas */
 @media (max-width: 768px) {

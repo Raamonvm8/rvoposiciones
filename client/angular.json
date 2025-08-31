@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "OposicionesValls": {
+    "rvoposiciones": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -58,10 +58,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "OposicionesValls:build:production"
+              "buildTarget": "rvoposiciones:build:production"
             },
             "development": {
-              "buildTarget": "OposicionesValls:build:development"
+              "buildTarget": "rvoposiciones:build:development"
             }
           },
           "defaultConfiguration": "development"
