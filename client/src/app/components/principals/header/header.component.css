@@ -8,6 +8,8 @@
     height: 100%;
     align-items: center;
     background-color: #042d64;
+    font-family: 'Roboto', sans-serif;
+
 }
 
 .site-logo {
@@ -39,6 +41,7 @@
 
 .btn-register, .btn-login{
     height: 40px;
+    
 }
 
 img {
@@ -87,6 +90,7 @@ nav a{
     color: #ffffff;
     cursor: pointer;
     font-size: large;
+    font-family: 'Varela Round', Sans-serif;
     box-sizing: border-box;
     position: relative; 
     transition: transform 0.5s ease;
@@ -115,6 +119,15 @@ nav a.selected {
   gap: 15px;
   align-items: center;
   padding: 20px 30%;
+}
+
+.login-form a{
+  cursor: pointer;
+}
+
+.login-form a:hover{
+  cursor: pointer;
+  color: #294e80;
 }
 
 .login-form input, .tab-content input {
@@ -276,6 +289,13 @@ nav a.selected {
   transition: 0.3s ease-in-out;
 }
 
+::ng-deep .custom-toast {
+  position: fixed !important;
+  bottom: 550px !important;
+  z-index: 9999; 
+}
+
+
 .login-form button:hover, .btn-register:hover {
   background: linear-gradient(135deg, #06408f, #0a5ed9);
   transform: translateY(-2px);
@@ -290,6 +310,14 @@ nav a.selected {
   margin-bottom: 15px;
   font-size: 22px;
   color: #042d64;
+}
+
+.modal-content h3 {
+  text-align: center;
+  font-size: 17px;
+  color: #333;
+  font-weight: 100;
+
 }
 
 

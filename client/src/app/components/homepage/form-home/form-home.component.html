@@ -1,0 +1,25 @@
+<div class="hero-container">
+  <div class="hero-content">
+    <h1>No solo es un curso anual…</h1>
+    <h2>Accede a <strong>TALLERES</strong> y <strong>MATERIALES</strong> exclusivos</h2>
+    <p>
+      Inscríbete con tu nombre y correo para recibir fechas y descuentos sobre talleres prácticos, recursos adicionales y materiales siempre actualizados para complementar tu preparación.
+    </p>
+
+    <ul class="benefits-list">
+      <li>Talleres prácticos sobre programación, PEP y planes de trabajo</li>
+      <li>Materiales exclusivos y actualizados para reforzar tu aprendizaje</li>
+      <li>Acceso sin necesidad de adquirir el curso completo</li>
+    </ul>
+
+    <form (ngSubmit)="onSubmit()" [formGroup]="registroForm" class="registro-form">
+      <input type="text" formControlName="nombre" placeholder="Tu nombre" required />
+      <input type="email" formControlName="correo" placeholder="Tu mejor correo electrónico" required />
+      <button type="submit" [disabled]="registroForm.invalid">Quiero Acceder</button>
+    </form>
+
+    <p class="microcopy">
+      No compartimos tu correo. Sin compromiso de compra.
+    </p>
+  </div>
+</div>

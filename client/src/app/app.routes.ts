@@ -5,6 +5,7 @@ import { LibrosComponent } from './components/libros/libros.component';
 import { materialize } from 'rxjs';
 import { MaterialesComponent } from './components/materiales/materiales.component';
 import { AdminPanelComponent } from './components/admin-panel/admin-panel.component';
+import { CompraMaterialComponent } from './components/compras/compra-material/compra-material.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' }, //defectous
@@ -13,6 +14,7 @@ export const routes: Routes = [
     { path: 'libros', component: LibrosComponent},
     { path: 'materiales', component: MaterialesComponent},
     { path: 'admin-panel', component: AdminPanelComponent},
+    { path: 'compra/:topic', component: CompraMaterialComponent },
 
 
 ];

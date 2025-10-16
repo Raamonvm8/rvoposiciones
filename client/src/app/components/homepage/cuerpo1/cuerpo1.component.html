@@ -1,33 +1,15 @@
-<section class="container-1">
-    <div class="content">
-        <h1>MATRÍCULA ABIERTA PARA CURSO 2025 - 2026</h1>
-        <p>¡PLAZAS LIMITADAS!</p>
-        <br>
-        <a class="button">RESERVA TU PLAZA AQUÍ</a>
-        <div class="images-container">
-            <div class="image-item">
-                <img src="../../../../assets/homepage/pqyo.png" alt="Clase Presencial">
-                <h3>¿POR QUÉ CONMIGO?</h3>
-                <p>Porque tendrás asesoramiento personalizado e individual a parte de las clases colectivas. <br> Indice alto de aprobados (con plaza un 75%). <br> </p>
-            </div>
-            <div class="image-item">
-                <img src="../../../../assets/homepage/iconoOnline.png" alt="Material de Estudio">
-                <h3>MODALIDAD DE LAS CLASES</h3>
-                <p>Las clases serán de modalidad online para todas las comunidades autónomas de España.</p>
-            </div>
-            <div class="image-item">
-                <img src="../../../../assets/homepage/iconoMateriales.png" alt="Simulacros de Examen">
-                <h3>MATERIALES</h3>
-                <p><br>Puedes pagarlo a parte. Temarios de primaria y PT. Recursos sobre programación didáctica, situaciones de aprendizaje, planes de trabajo, PEP, supuestos prácticos y Programas de Intervención (orientación).</p>
-            </div>
-            <div class="image-item">
-                <img src="../../../../assets/homepage/iconoTalleres.png" alt="Asesoramiento Personalizado">
-                <h3>TALLERES</h3>
-                <p><br>Se llevarán a cabo talleres sobre situaciones de aprendizaje, programaciones didácticas, PEP, planes de trabajo y supuestos prácticos.</p>
-            </div>
-        </div>
-        
-    </div>
-    
+<section class="hero-section">
+  <div class="hero-content">
+    <h1>MATRÍCULA ABIERTA PARA CURSO 2026 - 2027</h1>
+    <p class="highlight">¡PLAZAS LIMITADAS!</p>
+    <a class="cta-button">RESERVA TU PLAZA AQUÍ</a>
+  </div>
 
+  <div class="features-grid">
+    <div class="feature-card" *ngFor="let card of cards">
+      <img [src]="card.img" [alt]="card.alt" />
+      <h3>{{ card.title }}</h3>
+      <p>{{ card.text }}</p>
+    </div>
+  </div>
 </section>

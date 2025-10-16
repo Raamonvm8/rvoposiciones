@@ -21,15 +21,29 @@
     <div class="modal" *ngIf="muestraLogin">
         <div class="modal-content">
             <h2>Inicio de sesión</h2>
-            <span class="close" (click)="toggleLoginForm('login')">&times;</span>
+            <span class="close" (click)="closeLoginModal()">&times;</span>
             <form (ngSubmit)="onSubmit()" class="login-form">
                 <input type="text" [(ngModel)]="email" name="email" placeholder="Correo electrónico" required>
                 <input type="password" [(ngModel)]="password" name="password" placeholder="Contraseña" required>
+                <a (click)="contraOlvidada()">¿Olvidaste tu contraseña?</a>
                 <button type="submit">Login</button>
-                <button class="btn btn-login" (click)="toggleLoginForm('register')">No soy miembro</button>
+                <button type="button" class="btn btn-login" (click)="toggleLoginForm('register')">No soy miembro</button>
 
             </form>
         </div>
+    </div>
+
+    <div class="modal" *ngIf="showContraOlvidada">
+        <div class="modal-content">
+            <h2>Restablecer contraseña</h2>
+            <h3>Introduce el correo electrónico con el que te registraste, le mandaremos un email para restablecer su contraseña:</h3>
+            <span class="close" (click)="closeModalPass()">&times;</span>
+            <form (ngSubmit)="changePass()" class="login-form">
+                <input type="text" [(ngModel)]="emailOlvidado" name="emailOlvidado" placeholder="Correo electrónico" required>
+                <button type="submit">Restablecer Contraseña</button>
+            </form>
+        </div>
+
     </div>
 
     <div class="modal" *ngIf="showRegisterModal">
@@ -74,7 +88,7 @@
 
                 <div class="container-backfinish">
                     <button class="btn btn-back" (click)="goBackToForm()">Atrás</button>
-                    <button class="btn btn-back2" (click)="choosePlan('pack')">Finalizar registro</button>
+                    <button class="btn btn-back2" (click)="choosePlan('finRegistro')">Finalizar registro</button>
                 </div>
             </div>
         </div>

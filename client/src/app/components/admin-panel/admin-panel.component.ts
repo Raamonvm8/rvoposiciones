@@ -25,12 +25,19 @@ export class AdminPanelComponent {
   }
 
   verifyUser(uid: string) {
-  this.http.post(`http://localhost:3000/admin/users/${uid}/verify`, {})
-    .subscribe(() => {
-      alert('Usuario verificado');
-      this.ngOnInit(); // recargar lista
+    this.http.post(`http://localhost:3000/admin/users/${uid}/verify`, {})
+    .subscribe({
+      next: () => {
+        alert('Usuario verificado');
+        this.ngOnInit();
+      },
+      error: (err) => {
+        console.error('Error al verificar:', err);
+        alert('Error al verificar usuario');
+      }
     });
-}
+
+  }
 
   deleteUser(uid: string) {
     if (confirm('¿Seguro que quieres eliminar este usuario?')) {

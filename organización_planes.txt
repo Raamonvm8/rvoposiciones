@@ -13,3 +13,19 @@
 4. Sección recursos: estará una plataforma modo symbaloo. Puede tener un diseño guay 
     para que la gente vea lo que es pero sin acceso con opción a subscripción.
 
+
+
+PASOS PROXIMOS:
+
+- Tener claro lo que se quiere con talleres (si puedo hacer lo mismo que materiales de mostrar 
+por defecto algunos siempre o solo dar valores informativos).
+- Crear sección curso, bastante completa.
+- Añadir los correos que se registran a la web tambien a recolecta_correos
+- Crear un video gratuito introduciendo como serán las clases y con un enganching a que se 
+subscriban. Preguntar a chatgpt una estructura y grabar a papá.
+
+
+IMPORTANTE PARA PRODUCCION:
+- En backend app.js DB_PORT, PORT y URL del backend meterlos en .env
+
+

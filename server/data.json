@@ -52,6 +52,27 @@
           "originalName": "completa.pdf",
           "extension": ".pdf",
           "title": ""
+        },
+        {
+          "url": "http://localhost:3000/uploads/0 2025-08-28 a las 0.37.59_1756728417332.png",
+          "name": "0 2025-08-28 a las 0.37.59_1756728417332.png",
+          "originalName": "0 2025-08-28 a las 0.37.59.png",
+          "extension": ".png",
+          "title": ""
+        },
+        {
+          "url": "http://localhost:3000/uploads/Instalacion MV Fedora completa_1756728425777.pdf",
+          "name": "Instalacion MV Fedora completa_1756728425777.pdf",
+          "originalName": "Instalacion MV Fedora completa.pdf",
+          "extension": ".pdf",
+          "title": ""
+        },
+        {
+          "url": "http://localhost:3000/uploads/0 2025-08-28 a las 0.37.59_1756728479915.png",
+          "name": "0 2025-08-28 a las 0.37.59_1756728479915.png",
+          "originalName": "0 2025-08-28 a las 0.37.59.png",
+          "extension": ".png",
+          "title": ""
         }
       ]
     },
@@ -72,6 +93,16 @@
     },
     {
       "id": 6,
+      "name": "Recurso 2",
+      "archivos": []
+    },
+    {
+      "id": 7,
+      "name": "Recurso 1",
+      "archivos": []
+    },
+    {
+      "id": 8,
       "name": "Recurso 2",
       "archivos": []
     }

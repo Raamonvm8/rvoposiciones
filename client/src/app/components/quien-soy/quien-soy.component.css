@@ -9,7 +9,6 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 40px;
 }
 
 /* Sección intro */
@@ -32,7 +31,8 @@
 .quien-soy.intro .text p {
   font-size: 1.1rem;
   margin-bottom: 15px;
-  line-height: 1.6;
+  line-height: 1.7;
+  color: #333;
 }
 .quien-soy.intro .image {
   flex: 1;
@@ -57,7 +57,7 @@
 }
 .quien-soy.experiencia h2 {
   font-size: 2rem;
-  margin-bottom: 10px;
+  margin-bottom: 40px;
   color: #042d64;
 }
 .quien-soy.experiencia p {
@@ -94,7 +94,7 @@
   transition: all 0.3s ease;
 }
 .btn-suscripcion:hover {
-  background: #6b540f;
+  background: linear-gradient(135deg, #6b540f, #ad9551);
   transform: scale(1.05);
 }
 

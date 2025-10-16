@@ -3,7 +3,7 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/co
 
 @Component({
   selector: 'app-testimonios',
-  imports: [NgFor, NgClass, NgStyle],
+  imports: [NgFor, NgStyle],
   templateUrl: './testimonios.component.html',
   styleUrl: './testimonios.component.css'
 })
