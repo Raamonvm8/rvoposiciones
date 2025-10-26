@@ -1,5 +1,3 @@
-
-
 const express = require('express');
 const admin = require('firebase-admin');
 const serviceAccount = require('./config/rvoposiciones-firebase-admin.json');
@@ -8,11 +6,12 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
+const util = require('util');
 
-
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 require('dotenv').config({ path: './config/.env' }); 
-
 
 const app = express();
 const port = 3000;
@@ -28,26 +27,39 @@ const db = mysql.createPool({
   port: 8889 //cambiar en produccion (creo que 3306)
 });
 
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
-const uploadDir = path.join(__dirname, 'uploads', 'materiales');
+/*const uploadDir = path.join(__dirname, 'uploads');
 
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
-}
+}*/
 
-// Configuración de multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // Evita duplicados
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'archivos', // carpeta en Cloudinary
+    allowed_formats: ['jpg', 'png', 'pdf', 'docx', 'mp4'], // formatos permitidos
+    transformation: [{ width: 800, crop: 'limit' }] // opcional
   }
 });
 
 const upload = multer({ storage });
 
 
+// Configuración de multer local carpeta uploads
+/*const localStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname)); // Evita duplicados
+  }
+});*/
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -55,8 +67,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
+//app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 admin.initializeApp({
@@ -289,42 +300,33 @@ app.post('/api/upload/:recursoId', upload.single('file'), async (req, res) => {
 
   if (!file) return res.status(400).json({ message: 'No se subió archivo' });
 
-  const fileUrl = `http://localhost:3000/uploads/materiales/${file.filename}`;
+  const fileUrl = file.secure_url || file.path;
   const extension = path.extname(file.originalname).toLowerCase();
+  const publicId = file.public_id || file.filename;
 
   try {
-    // Insertar el archivo en la base de datos
     const [result] = await db.query(
-      'INSERT INTO archivos (recurso_id, title, file_name, original_name, url, extension) VALUES (?, ?, ?, ?, ?, ?)',
-      [recursoId, title, file.filename, file.originalname, fileUrl, extension]
+      'INSERT INTO archivos (recurso_id, title, file_name, original_name, url, publicId, extension) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [recursoId, title, file.filename, file.originalname, fileUrl, publicId, extension]
     );
 
-    // Traer el archivo insertado, asegurándonos de que tenga id y nombres correctos
-    const [rows] = await db.query('SELECT id, recurso_id, title, file_name, original_name, url, extension FROM archivos WHERE id = ?', [result.insertId]);
+    const [rows] = await db.query('SELECT * FROM archivos WHERE id = ?', [result.insertId]);
 
-    if (!rows.length) {
-      return res.status(500).json({ message: 'Error al recuperar el archivo subido' });
-    }
-
-    // Enviar respuesta consistente para Angular
-    const archivo = rows[0];
     res.json({ 
       message: 'Archivo subido', 
-      file: {
-        id: archivo.id,
-        title: archivo.title,
-        file_name: archivo.file_name,
-        original_name: archivo.original_name,
-        url: archivo.url,
-        extension: archivo.extension
-      }
+      file: rows[0]
     });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Error subiendo archivo', error: err });
+    console.error('❌ Error al subir archivo:');
+    console.error(util.inspect(err, { showHidden: false, depth: null, colors: true }));
+    res.status(500).json({
+      message: 'Error subiendo archivo',
+      error: err.message || err.sqlMessage || err,
+    });
   }
 });
+
 
 // Actualizar recurso
 app.put('/api/recurso/:id', async (req, res) => {
@@ -340,9 +342,6 @@ app.put('/api/recurso/:id', async (req, res) => {
     res.status(500).json({ message: 'Error actualizando recurso', error: err });
   }
 });
-
-
-
 
 app.put('/api/archivo/:id', async (req, res) => {
   const { newName } = req.body;
@@ -361,14 +360,13 @@ app.put('/api/archivo/:id', async (req, res) => {
 app.delete('/api/archivo/:id', async (req, res) => {
   const id = req.params.id;
   try {
-    const [rows] = await db.query('SELECT file_name FROM archivos WHERE id = ?', [id]);
+    const [rows] = await db.query('SELECT publicId FROM archivos WHERE id = ?', [id]);
     if (!rows.length) return res.status(404).json({ message: 'Archivo no encontrado' });
 
-    const filePath = path.join(__dirname, 'uploads', rows[0].file_name);
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-
+    await cloudinary.uploader.destroy(rows[0].publicId);
     await db.query('DELETE FROM archivos WHERE id = ?', [id]);
     res.json({ message: 'Archivo eliminado' });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error eliminando archivo', error: err });
@@ -381,10 +379,9 @@ app.delete('/api/archivo/:id', async (req, res) => {
 app.delete('/api/recurso/:id', async (req, res) => {
   const id = req.params.id;
   try {
-    const [archivos] = await db.query('SELECT file_name FROM archivos WHERE recurso_id = ?', [id]);
+    const [archivos] = await db.query('SELECT publicId FROM archivos WHERE recurso_id = ?', [id]);
     for (let a of archivos) {
-      const filePath = path.join(__dirname, 'uploads', a.file_name);
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      await cloudinary.uploader.destroy(a.publicId);
     }
     await db.query('DELETE FROM recursos WHERE id = ?', [id]);
     res.json({ message: 'Recurso eliminado' });
@@ -473,7 +470,7 @@ app.post('/api/materiales/upload/:id', upload.single('file'), async (req, res) =
       return res.status(400).json({ message: 'No se subió ningún archivo' });
     }
 
-    const fileUrl = `http://localhost:3000/uploads/materiales/${req.file.filename}`;
+    const fileUrl = req.file.path;
 
     // Actualiza la ruta de la imagen en la BD
     await db.query('UPDATE materiales_a_la_venta SET img = ? WHERE id = ?', [fileUrl, planId]);
@@ -519,6 +516,242 @@ app.get('/api/recolecta/export', async (req, res) => {
     res.status(500).json({ message: 'Error exportando correos', error: err });
   }
 });
+
+// ======================
+//  ENDPOINTS: TALLERES
+// ======================
+
+app.get('/api/talleres', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM talleres_a_la_venta');
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error obteniendo talleres' });
+  }
+});
+
+app.post('/api/talleres', async (req, res) => {
+  try {
+    const uuid = crypto.randomUUID();
+    const [result] = await db.query(
+      'INSERT INTO talleres_a_la_venta (uuid, titulo, descripcion, img, price) VALUES (?, ?, ?, ?, ?)',
+      [uuid, req.body.titulo, req.body.descripcion, req.body.img, req.body.price]
+    );
+
+    res.json({
+      id: result.insertId,
+      uuid,
+      ...req.body
+    });
+  } catch (error) {
+    console.error('Error al crear taller:', error);
+    res.status(500).json({ error: 'Error al crear taller' });
+  }
+});
+
+app.put('/api/talleres/:id', async (req, res) => {
+  try {
+    const { titulo, descripcion, img, price, visible } = req.body;
+    const fields = [];
+    const values = [];
+
+    if (titulo !== undefined) { fields.push('titulo=?'); values.push(titulo); }
+    if (descripcion !== undefined) { fields.push('descripcion=?'); values.push(descripcion); }
+    if (img !== undefined) { fields.push('img=?'); values.push(img); }
+    if (price !== undefined) { fields.push('price=?'); values.push(price); }
+    if (visible !== undefined) { fields.push('visible=?'); values.push(visible); }
+
+    if (fields.length === 0) return res.status(400).json({ error: 'No hay campos para actualizar' });
+
+    values.push(req.params.id);
+
+    await db.query(`UPDATE talleres_a_la_venta SET ${fields.join(', ')} WHERE id=?`, values);
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error actualizando taller' });
+  }
+});
+
+
+app.delete('/api/talleres/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await db.query('DELETE FROM talleres_a_la_venta WHERE id=?', [id]);
+    res.json({ message: 'Taller eliminado' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error eliminando taller', error: err });
+  }
+});
+
+// Subir archivo a taller
+app.post('/api/recurso/talleres', async (req, res) => {
+  const { name, tipo, material_type } = req.body; 
+  try {
+    const [result] = await db.query(
+      'INSERT INTO recursos_talleres (name, tipo, material_type) VALUES (?, ?, ?)', 
+      [name, tipo, material_type || null]
+    );
+    const [recurso] = await db.query('SELECT * FROM recursos_talleres WHERE id = ?', [result.insertId]);
+    res.json({ message: 'Recurso creado', recurso: recurso[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error creando recurso', error: err });
+  }
+});
+
+
+app.get('/api/recursos/talleres', async (req, res) => {
+  try {
+    const [recursos] = await db.query('SELECT * FROM recursos_talleres');
+    for (let r of recursos) {
+      const [archivos] = await db.query('SELECT * FROM archivos_talleres WHERE recurso_id = ?', [r.id]);
+      r.archivos = archivos;
+    }
+    res.json(recursos);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error obteniendo recursos', error: err });
+  }
+});
+
+app.put('/api/recurso/talleres/:id', async (req, res) => {
+  const id = req.params.id;
+  const { name, material_type } = req.body;
+
+  try {
+    await db.query('UPDATE recursos_talleres SET name = ?, material_type = ? WHERE id = ?', [name, material_type || null, id]);
+    const [rows] = await db.query('SELECT * FROM recursos_talleres WHERE id = ?', [id]);
+    res.json({ message: 'Recurso actualizado', recurso: rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error actualizando recurso', error: err });
+  }
+});
+
+
+//subida de archivos
+app.post('/api/upload/taller/:recursoId', upload.single('file'), async (req, res) => {
+  console.log('📌 Headers:', req.headers);
+  console.log('📌 Body:', req.body);
+  console.log('📌 File recibido:', req.file);
+
+  try {
+    const recursoId = parseInt(req.params.recursoId);
+    const title = req.body.title || null;
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({ message: 'No se subió ningún archivo', file: req.file, body: req.body });
+    }
+
+    const fileUrl = file.path || file.url; 
+    const publicId = file.filename || file.public_id;
+    const extension = path.extname(file.originalname).toLowerCase();
+
+    const [result] = await db.query(
+      `INSERT INTO archivos_talleres 
+      (recurso_id, title, file_name, original_name, url, publicId, extension)
+      VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [recursoId, title, file.originalname, file.originalname, fileUrl, publicId, extension]
+    );
+
+    const [rows] = await db.query('SELECT * FROM archivos_talleres WHERE id = ?', [result.insertId]);
+
+    res.json({
+      message: '✅ Archivo subido correctamente',
+      file: rows[0],
+    });
+
+  } catch (err) {
+    console.error('❌ Error completo:', util.inspect(err, { showHidden: false, depth: null, colors: true }));
+    res.status(500).json({ message: 'Error subiendo archivo', error: err });
+  }
+});
+
+
+
+
+
+
+app.put('/api/archivo/talleres/:id', async (req, res) => {
+  const { newName } = req.body;
+  const id = req.params.id;
+  try {
+    await db.query('UPDATE archivos_talleres SET original_name = ? WHERE id = ?', [newName, id]);
+    res.json({ message: 'Archivo actualizado' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error actualizando archivo', error: err });
+  }
+});
+
+
+//eliminar fichero en un recurso
+app.delete('/api/archivo/talleres/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    const [rows] = await db.query('SELECT publicId FROM archivos_talleres WHERE id = ?', [id]);
+    if (!rows.length) return res.status(404).json({ message: 'Archivo no encontrado' });
+
+    await cloudinary.uploader.destroy(rows[0].publicId);
+
+    await db.query('DELETE FROM archivos_talleres WHERE id = ?', [id]);
+    res.json({ message: 'Archivo eliminado' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error eliminando archivo', error: err });
+  }
+});
+
+
+
+//eliminar recurso y sus archivos
+app.delete('/api/recurso/talleres/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    const [archivos] = await db.query('SELECT publicId FROM archivos_talleres WHERE recurso_id = ?', [id]);
+    for (let a of archivos) {
+      await cloudinary.uploader.destroy(a.publicId);
+    }
+    await db.query('DELETE FROM recursos_talleres WHERE id = ?', [id]);
+    res.json({ message: 'Recurso eliminado' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error eliminando recurso', error: err });
+  }
+});
+
+
+// Editar URL de taller
+app.put('/api/taller/url/:id', async (req, res) => {
+  const { link } = req.body;
+  const id = req.params.id;
+  try {
+    await db.query('UPDATE urls_taller SET link = ? WHERE id = ?', [link, id]);
+    res.json({ message: 'URL actualizada' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error actualizando URL', error: err });
+  }
+});
+
+// Borrar URL
+app.delete('/api/taller/url/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    await db.query('DELETE FROM urls_taller WHERE id = ?', [id]);
+    res.json({ message: 'URL eliminada' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error eliminando URL', error: err });
+  }
+});
+
+
 
 
 // Iniciar servidor
