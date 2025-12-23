@@ -57,7 +57,7 @@ export class HeaderComponent {
     isAdmin: false
   };
 
-  items: {title: string, ruta: string}[] = [{title: 'SOBRE RAMÓN', ruta: 'quiénsoy'}, {title: 'MIS LIBROS', ruta: 'libros'}, {title: 'MATERIALES', ruta: 'materiales'}, {title: 'TALLERES', ruta: ''}];
+  items: {title: string, ruta: string}[] = [{title: 'SOBRE RAMÓN', ruta: 'quiénsoy'}, {title: 'MIS LIBROS', ruta: 'libros'}, {title: 'MATERIALES', ruta: 'materiales'}, {title: 'TALLERES', ruta: 'talleres'}];
 
   constructor(private http: HttpClient, private authModal: ModalRegisterLoginService) {}
 

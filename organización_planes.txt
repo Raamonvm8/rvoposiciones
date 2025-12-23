@@ -17,6 +17,7 @@
 
 PASOS PROXIMOS:
 
+- Poner mas tipos de archivos posibles para Cloudinary en el código
 - Tener claro lo que se quiere con talleres (si puedo hacer lo mismo que materiales de mostrar 
 por defecto algunos siempre o solo dar valores informativos).
 - Crear sección curso, bastante completa.
@@ -27,5 +28,6 @@ subscriban. Preguntar a chatgpt una estructura y grabar a papá.
 
 IMPORTANTE PARA PRODUCCION:
 - En backend app.js DB_PORT, PORT y URL del backend meterlos en .env
+- Admin-panel hacerlo con contraseña
 
 
