@@ -15,11 +15,15 @@
 
 
 
-PASOS PROXIMOS:
+PASOS PROXIMOS: ❌ ✅
 
-- Poner mas tipos de archivos posibles para Cloudinary en el código
-- Tener claro lo que se quiere con talleres (si puedo hacer lo mismo que materiales de mostrar 
+✅ No se eliminan las fotos de las ventas cuando actualizo la imagen de materiales/talleres.
+✅ Se visualizan por primera vez al crearlo y quiero lo contrario.
+✅ Tener claro lo que se quiere con talleres (si puedo hacer lo mismo que materiales de mostrar 
 por defecto algunos siempre o solo dar valores informativos).
+✅ Cuando le doy a comprar material no me sale como añadido al carro
+- Funcionalidad de pago de talleres y recursos.
+- Hacer sección recursos pagina que me dijo el dad
 - Crear sección curso, bastante completa.
 - Añadir los correos que se registran a la web tambien a recolecta_correos
 - Crear un video gratuito introduciendo como serán las clases y con un enganching a que se 
@@ -31,3 +35,6 @@ IMPORTANTE PARA PRODUCCION:
 - Admin-panel hacerlo con contraseña
 
 
+FUTURE IMPLEMENTATIONS:
+
+- Hidde/show files from recourses
