@@ -1,0 +1,163 @@
+<h1>TALLERES</h1>
+
+<!-- 🔹 Secciones de talleres -->
+<ng-container *ngIf="userData">
+  <ng-container *ngFor="let recurso of recursos; let i = index">
+    
+    <!-- Mostrar siempre para admin, o según permisos -->
+    <form *ngIf="isAdmin || !recurso.material_type || userData?.talleres?.includes(recurso.material_type)"
+      (ngSubmit)="onUpload(recurso)" enctype="multipart/form-data">
+
+
+      <div class="recurso-header">
+        <span (click)="toggleRecurso(recurso)" class="toggle-icon">
+          {{ recurso.isExpanded ? '▼' : '▶' }}
+        </span>
+
+        <div *ngIf="recurso.isEditing" class="edit-recursos">
+            <input [(ngModel)]="recurso.name" name="recurso-{{ i }}" />
+            <select [(ngModel)]="recurso.material_type" name="material_type-{{i}}">
+                <option value="">Genérico (visible para todos)</option>
+                <option *ngFor="let p of planes" [value]="p.uuid">{{ p.titulo }}</option>
+            </select>
+            <button type="button" (click)="saveRecurso(recurso)">Guardar</button>
+            <button type="button" (click)="cancelEdit(recurso)">Cancelar</button>
+        </div>
+
+        <h2>
+          <span *ngIf="!recurso.isEditing">{{ recurso.name }}
+            <span *ngIf="isAdmin" (click)="editRecurso(recurso)" class="edit-icon">✏️</span>
+          </span>
+          <a *ngIf="isAdmin" class="x-button" (click)="deleteRecurso(recurso)">x</a>
+        </h2>
+      </div>
+
+        <div *ngIf="recurso.isExpanded" class="recursos-display">
+            <div class="file-upload-container" *ngIf="isAdmin">
+                <div class="file-upload">
+                    <label class="file-label">
+                        <i class="fa fa-upload"></i> Subir archivo
+                        <input type="file" name="file" (change)="onFileSelected($event, recurso)" hidden>
+                    </label>
+                    <span *ngIf="recurso.selectedFileName" class="file-name">
+                        {{ recurso.selectedFileName }}
+                    </span>
+                </div>
+
+                <button *ngIf="isAdmin" type="button" (click)="onUpload(recurso)" class="btn-upload">
+                    <i class="fa fa-cloud-upload" aria-hidden="true"></i>
+                </button>
+
+            </div>
+
+
+            <div *ngIf="recurso.archivos?.length; else noFiles">
+                <div *ngFor="let file of recurso.archivos">
+                <div class="container-add">
+                    <img [src]="getIconForFile(file.extension)" alt="file icon" class="file-icon">
+                    <div class="edition-separate">
+                    <a *ngIf="!file.isEditing" [href]="file.url" target="_blank">{{ file.fileNameOriginal }}</a>
+                    <input *ngIf="file.isEditing" [(ngModel)]="file.newFileName" placeholder="Editar nombre" name="editFileName-{{ file.filename }}"/>
+                    <i (click)="editFileName(file)" *ngIf="!file.isEditing && isAdmin" class="fa fa-pencil" style="cursor:pointer; margin-left:40px; margin-right:10px;"></i>
+                    <button *ngIf="file.isEditing" (click)="saveFileName(file)">Guardar</button>
+                    <i *ngIf="isAdmin" (click)="deleteFile(recurso, file)" class="fa fa-trash" style="cursor:pointer;"></i>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <ng-template #noFiles>
+            <p class="no-files-message">⚠️ Aún no hay archivos para este recurso.</p>
+        </ng-template>
+    </form>
+  </ng-container>
+    <div class="modal" *ngIf="showCreateRecursoModal">
+        <div class="modal-content">
+            <h3>Crear nuevo recurso</h3>
+            
+            <label for="plan-select">Añade un título del recurso:</label>
+            <input id="recurso-name" type="text" [(ngModel)]="newRecursoName" placeholder="Escribe el título..." />
+
+            <label for="plan-select">Selecciona el material al que pertenece:</label>
+            <select id="plan-select" [(ngModel)]="newRecursoPlanUuid">
+                <option value="" disabled>-- Selecciona un material --</option>
+                <option *ngFor="let plan of planes" [value]="plan.uuid">{{ plan.titulo }}</option>
+            </select>
+
+            <div class="modal-buttons">
+                <button (click)="confirmCreateRecurso()">Crear</button>
+                <button (click)="cancelCreateRecurso()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+</ng-container>
+
+<div class="container-center">
+  <button *ngIf="isAdmin" class="add-button" (click)="addRecurso()">+</button>
+</div>
+
+<!-- 🔹 Botones de compra / planes -->
+<div class="planes-container">
+
+  <!-- ADMIN: editable -->
+  <div *ngIf="isAdmin">
+    
+    <div class="planes-grid">
+        <div class="plan-card" [ngClass]="{ 'hidden': !plan.visible }" *ngFor="let plan of planes; let i = index">
+            <a class="x-button delete-plan" (click)="deletePlan(i)">x</a>
+            <button class="btn-visible" type="button" (click)="toggleVisible(plan)">
+                <i class="fa" [ngClass]="plan.visible ? 'fa-eye' : 'fa-eye-slash'"></i>
+            </button>
+
+            <div class="file-upload-container" *ngIf="isAdmin">
+                <input type="file" name="file" id="plan-image-{{ i }}" class="file-input" (change)="onImageSelectedTaller($event, plan)" hidden>
+                <label class="file-upload-btn" for="plan-image-{{ i }}">
+                    <i class="fa fa-image"></i> Cambiar imagen
+                </label>
+            </div>
+
+            <img [src]="plan.img" [alt]="plan.titulo" class="plan-img">
+            
+            <div class="plan-content">
+                <input [(ngModel)]="plan.titulo" name="titulo-{{i}}" class="editable-input" />
+                <textarea [(ngModel)]="plan.descripcion" name="descripcion-{{i}}" class="editable-textarea"></textarea>
+                <p>Precio:</p>
+                <input [(ngModel)]="plan.price" name="precio-{{i}}" type="number" class="editable-input" placeholder="Precio (€)" />
+
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <button class="btn-comprar" (click)="guardarPlan(plan)">💾 Guardar cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="add-plan-container">
+      <button class="btn-add-plan" (click)="agregarPlan()">+ Añadir nuevo plan</button>
+    </div>
+  </div>
+
+    <!-- USUARIO normal -->
+    <div *ngIf="!isAdmin">
+        <div class="planes-grid">
+
+            <ng-container *ngFor="let plan of planes">
+                <div class="plan-card" *ngIf="!userData?.talleres?.includes(plan.uuid) && plan.visible">
+                    <img [src]="plan.img" [alt]="plan.titulo" class="plan-img">
+                    <div class="plan-content">
+                        <h2>{{ plan.titulo }}</h2>
+                        <p>{{ plan.descripcion }}</p>
+                        <button class="btn-comprar" (click)="handleBuyTaller(plan)">
+                        <i class="fa-solid fa-cart-shopping"></i> Comprar acceso
+                        </button>
+                    </div>
+                </div>
+            </ng-container>
+
+        </div>
+    </div>
+
+
+
+</div>
