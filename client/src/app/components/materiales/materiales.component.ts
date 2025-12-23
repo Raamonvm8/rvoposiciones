@@ -9,6 +9,7 @@ import { DB } from '../../../environments/environment';
 import { Route, Router } from '@angular/router';
 import { ModalRegisterLoginService } from '../../services/modal-register-login.service';
 import { combineLatest } from 'rxjs';
+import { CartService } from '../../services/cart.service';
 
 
 interface UploadedFile {
@@ -63,7 +64,7 @@ export class MaterialesComponent implements OnInit{
 
   ModalRegisterLoginService: any;
 
-  constructor(private http: HttpClient, private modalRegisterLogin: ModalRegisterLoginService, private router: Router, private cd: ChangeDetectorRef) {
+  constructor(private http: HttpClient, private modalRegisterLogin: ModalRegisterLoginService, private router: Router, private cd: ChangeDetectorRef, private cartService: CartService) {
   }
   userData: any = null;
 
@@ -95,8 +96,6 @@ export class MaterialesComponent implements OnInit{
 
     });
   }
-
-
 
   loadRecursos() {
     this.http.get('http://localhost:3000/api/recursos').subscribe((res: any) => {
@@ -187,8 +186,13 @@ export class MaterialesComponent implements OnInit{
   }
 
   redirectToCompra(materialUuid: string) {
-    const path = `/compra/${materialUuid}`;
-    this.router.navigate([path]);
+    const material = this.planes.find(p => p.uuid === materialUuid);
+
+    if (material) {
+      this.cartService.addToCart(material);
+    }
+
+    this.router.navigate([`/compra/${materialUuid}`]);
   }
 
   onFileSelected(event: any, recurso: any) {
@@ -198,7 +202,6 @@ export class MaterialesComponent implements OnInit{
       recurso.selectedFileName = file.name; 
     }
   }
-
   
   editFileName(file: UploadedFile) {
     file.isEditing = true;
@@ -217,7 +220,6 @@ export class MaterialesComponent implements OnInit{
       }, error => console.error('Error actualizando archivo:', error));
   }
 
-
   addRecurso() {
     if (!this.planes.length) {
       alert("No hay materiales disponibles para asociar.");
@@ -232,18 +234,15 @@ export class MaterialesComponent implements OnInit{
   }
 
   confirmCreateRecurso() {
+
     if (!this.newRecursoName.trim()) {
       alert("Debes poner un nombre al recurso.");
-      return;
-    }
-    if (!this.newRecursoPlanUuid) {
-      alert("Debes seleccionar un material antes de crear el recurso.");
       return;
     }
 
     const newRecurso = {
       name: this.newRecursoName.trim(),
-      material_type: this.newRecursoPlanUuid
+      material_type: this.newRecursoPlanUuid || null 
     };
 
     this.http.post('http://localhost:3000/api/recurso', newRecurso)
@@ -261,10 +260,6 @@ export class MaterialesComponent implements OnInit{
       });
   }
 
-
-
-  
-
   deleteRecurso(recurso: any) {
     if (!confirm('¿Seguro que quieres eliminar este apartado?')) return;
 
@@ -273,7 +268,6 @@ export class MaterialesComponent implements OnInit{
         this.recursos = this.recursos.filter(r => r.id !== recurso.id);
       }, error => console.error('Error al eliminar recurso:', error));
   }
-
 
   // Cambiar a modo edición
   editRecurso(recurso: { name: string, isEditing: boolean }) {
@@ -302,8 +296,6 @@ export class MaterialesComponent implements OnInit{
         }
       });
   }
-
-
 
   cancelEdit(recurso: { name: string, isEditing: boolean, originalName: string }) {
     recurso.name = recurso.originalName; // Restaurar el nombre original
@@ -337,8 +329,6 @@ export class MaterialesComponent implements OnInit{
         error: err => console.error('Error al subir archivo:', err)
       });
   }
-
-
 
   // Define los iconos según el formato del archivo
   getIconForFile(extension: string): string {
@@ -391,7 +381,6 @@ export class MaterialesComponent implements OnInit{
       });
   }
 
-
   toggleVisible(plan: any) {
     plan.visible = !plan.visible;
 
@@ -415,11 +404,6 @@ export class MaterialesComponent implements OnInit{
     });
   }
 
-
-
-
-
-
   agregarPlan() {
     const nuevo = {
       titulo: 'Nuevo material',
@@ -433,7 +417,6 @@ export class MaterialesComponent implements OnInit{
     });
 
   }
-
 
   onImageSelected(event: any, plan: any) {
     const file: File = event.target.files[0];
@@ -451,8 +434,6 @@ export class MaterialesComponent implements OnInit{
       });
   }
 
-
-
   deletePlan(index: number) {
     const plan = this.planes[index];
     if (!confirm('¿Seguro que quieres eliminar este material?')) return;
@@ -461,7 +442,5 @@ export class MaterialesComponent implements OnInit{
       this.planes.splice(index, 1);
     });
   }
-
-
 
 }

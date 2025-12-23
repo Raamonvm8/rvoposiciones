@@ -51,7 +51,7 @@
             </div>
 
 
-            <div *ngIf="recurso.archivos?.length">
+            <div *ngIf="recurso.archivos?.length; else noFiles">
                 <div *ngFor="let file of recurso.archivos">
                 <div class="container-add">
                     <img [src]="getIconForFile(file.extension)" alt="file icon" class="file-icon">
@@ -66,6 +66,9 @@
                 </div>
             </div>
         </div>
+        <ng-template #noFiles>
+            <p class="no-files-message">⚠️ Aún no hay archivos para este recurso.</p>
+        </ng-template>
     </form>
   </ng-container>
     <div class="modal" *ngIf="showCreateRecursoModal">
@@ -77,7 +80,7 @@
 
             <label for="plan-select">Selecciona el material al que pertenece:</label>
             <select id="plan-select" [(ngModel)]="newRecursoPlanUuid">
-                <option value="" disabled>-- Selecciona un material --</option>
+                <option value="" >-- Genérico para todos --</option>
                 <option *ngFor="let plan of planes" [value]="plan.uuid">{{ plan.titulo }}</option>
             </select>
 
@@ -87,7 +90,6 @@
             </div>
         </div>
     </div>
-
 </ng-container>
 
 <div class="container-center">
@@ -128,7 +130,6 @@
             </div>
         </div>
     </div>
-
     <div class="add-plan-container">
       <button class="btn-add-plan" (click)="agregarPlan()">+ Añadir nuevo plan</button>
     </div>
@@ -137,7 +138,6 @@
     <!-- USUARIO normal -->
     <div *ngIf="!isAdmin">
         <div class="planes-grid">
-
             <ng-container *ngFor="let plan of planes">
                 <div class="plan-card" *ngIf="!userData?.materiales?.includes(plan.uuid) && plan.visible">
                     <img [src]="plan.img" [alt]="plan.titulo" class="plan-img">
@@ -150,10 +150,7 @@
                     </div>
                 </div>
             </ng-container>
-
         </div>
     </div>
-
-
 
 </div>
