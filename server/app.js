@@ -41,7 +41,22 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // Evita duplicados
+    let baseName = path.basename(file.originalname, path.extname(file.originalname));
+    const ext = path.extname(file.originalname);
+
+    // remove illegal characters and normalize spaces
+    baseName = baseName.replace(/[<>:"/\\|?*]+/g, '').replace(/\s+/g, '_');
+
+    let finalName = baseName + ext;
+    let counter = 0;
+
+    // Check for existing files and append * symbols
+    while (fs.existsSync(path.join(uploadDir, finalName))) {
+      counter++;
+      finalName = `${baseName}${'*'.repeat(counter)}${ext}`;
+    }
+
+    cb(null, finalName);
   }
 });
 
@@ -56,8 +71,6 @@ app.use(cors());
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -364,10 +377,16 @@ app.delete('/api/archivo/:id', async (req, res) => {
     const [rows] = await db.query('SELECT file_name FROM archivos WHERE id = ?', [id]);
     if (!rows.length) return res.status(404).json({ message: 'Archivo no encontrado' });
 
-    const filePath = path.join(__dirname, 'uploads', rows[0].file_name);
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    const fileName = rows[0].file_name;
+    const filePath = path.join(__dirname, 'uploads', 'materiales', fileName);
 
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      console.log(`✅ File deleted: ${filePath}`);
+    }
+    
     await db.query('DELETE FROM archivos WHERE id = ?', [id]);
+
     res.json({ message: 'Archivo eliminado' });
   } catch (err) {
     console.error(err);
@@ -382,8 +401,9 @@ app.delete('/api/recurso/:id', async (req, res) => {
   const id = req.params.id;
   try {
     const [archivos] = await db.query('SELECT file_name FROM archivos WHERE recurso_id = ?', [id]);
+    
     for (let a of archivos) {
-      const filePath = path.join(__dirname, 'uploads', a.file_name);
+      const filePath = path.join(__dirname, 'uploads', 'materiales', a.file_name);
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     }
     await db.query('DELETE FROM recursos WHERE id = ?', [id]);
@@ -410,8 +430,8 @@ app.post('/api/materiales', async (req, res) => {
   try {
     const uuid = crypto.randomUUID();
     const [result] = await db.query(
-      'INSERT INTO materiales_a_la_venta (uuid, titulo, descripcion, img, price) VALUES (?, ?, ?, ?, ?)',
-      [uuid, req.body.titulo, req.body.descripcion, req.body.img, req.body.price]
+      'INSERT INTO materiales_a_la_venta (uuid, titulo, descripcion, img, price, visible) VALUES (?, ?, ?, ?, ?, ?)',
+      [uuid, req.body.titulo, req.body.descripcion, req.body.img, req.body.price, req.body.visible]
     );
 
     res.json({
@@ -424,8 +444,6 @@ app.post('/api/materiales', async (req, res) => {
     res.status(500).json({ error: 'Error al crear material' });
   }
 });
-
-
 
 // Actualizar un material
 app.put('/api/materiales/:id', async (req, res) => {
@@ -452,7 +470,6 @@ app.put('/api/materiales/:id', async (req, res) => {
   }
 });
 
-
 // Eliminar un material
 app.delete('/api/materiales/:id', async (req, res) => {
   const { id } = req.params;
@@ -466,24 +483,76 @@ app.delete('/api/materiales/:id', async (req, res) => {
   }
 });
 
+// Upload image for materiales
 app.post('/api/materiales/upload/:id', upload.single('file'), async (req, res) => {
   try {
     const planId = req.params.id;
-    if (!req.file) {
-      return res.status(400).json({ message: 'No se subió ningún archivo' });
+    if (!req.file) return res.status(400).json({ message: 'No se subió ningún archivo' });
+
+    // Get old image
+    const [rows] = await db.query('SELECT img FROM materiales_a_la_venta WHERE id = ?', [planId]);
+    if (rows.length && rows[0].img) {
+      const oldImageUrl = rows[0].img;
+      const oldFileName = path.basename(oldImageUrl);
+
+      // Check if any other material is using this file
+      const [usedElsewhere] = await db.query(
+        'SELECT COUNT(*) as count FROM materiales_a_la_venta WHERE img LIKE ? AND id != ?',
+        [`%${oldFileName}`, planId]
+      );
+
+      if (usedElsewhere[0].count === 0) {
+        const oldFilePath = path.join(__dirname, 'uploads', 'materiales', oldFileName);
+        if (fs.existsSync(oldFilePath)) fs.unlinkSync(oldFilePath);
+      }
     }
 
     const fileUrl = `http://localhost:3000/uploads/materiales/${req.file.filename}`;
-
-    // Actualiza la ruta de la imagen en la BD
     await db.query('UPDATE materiales_a_la_venta SET img = ? WHERE id = ?', [fileUrl, planId]);
 
     res.json({ url: fileUrl, file: req.file });
+
   } catch (error) {
-    console.error('Error subiendo imagen:', error);
+    console.error('❌ Error subiendo imagen:', error);
     res.status(500).json({ message: 'Error al subir imagen', error });
   }
 });
+
+// Upload image for talleres
+app.post('/api/talleres/upload/:id', upload.single('file'), async (req, res) => {
+  try {
+    const planId = req.params.id;
+    if (!req.file) return res.status(400).json({ message: 'No se subió ningún archivo' });
+
+    // Get old image
+    const [rows] = await db.query('SELECT img FROM talleres_a_la_venta WHERE id = ?', [planId]);
+    if (rows.length && rows[0].img) {
+      const oldImageUrl = rows[0].img;
+      const oldFileName = path.basename(oldImageUrl);
+
+      // Check if any other taller is using this file
+      const [usedElsewhere] = await db.query(
+        'SELECT COUNT(*) as count FROM talleres_a_la_venta WHERE img LIKE ? AND id != ?',
+        [`%${oldFileName}`, planId]
+      );
+
+      if (usedElsewhere[0].count === 0) {
+        const oldFilePath = path.join(__dirname, 'uploads', 'materiales', oldFileName);
+        if (fs.existsSync(oldFilePath)) fs.unlinkSync(oldFilePath);
+      }
+    }
+
+    const fileUrl = `http://localhost:3000/uploads/materiales/${req.file.filename}`;
+    await db.query('UPDATE talleres_a_la_venta SET img = ? WHERE id = ?', [fileUrl, planId]);
+
+    res.json({ url: fileUrl, file: req.file });
+
+  } catch (error) {
+    console.error('❌ Error subiendo imagen:', error);
+    res.status(500).json({ message: 'Error al subir imagen', error });
+  }
+});
+
 
 // Guardar un correo de registro
 app.post('/api/recolecta', async (req, res) => {
@@ -520,6 +589,195 @@ app.get('/api/recolecta/export', async (req, res) => {
   }
 });
 
+
+// Obtener todos los talleres
+app.get('/api/talleres', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM talleres_a_la_venta');
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error obteniendo talleres', error: err });
+  }
+});
+
+// Crear un nuevo taller
+app.post('/api/talleres', async (req, res) => {
+  try {
+    const uuid = crypto.randomUUID();
+    const [result] = await db.query(
+      'INSERT INTO talleres_a_la_venta (uuid, titulo, descripcion, img, price, visible) VALUES (?, ?, ?, ?, ?, ?)',
+      [uuid, req.body.titulo, req.body.descripcion, req.body.img, req.body.price, req.body.visible]
+    );
+
+    res.json({
+      id: result.insertId,
+      uuid,
+      ...req.body
+    });
+  } catch (error) {
+    console.error('Error al crear taller:', error);
+    res.status(500).json({ error: 'Error al crear taller' });
+  }
+});
+
+// Actualizar un taller
+app.put('/api/talleres/:id', async (req, res) => {
+  try {
+    const { titulo, descripcion, img, price, visible } = req.body;
+    const fields = [];
+    const values = [];
+
+    if (titulo !== undefined) { fields.push('titulo=?'); values.push(titulo); }
+    if (descripcion !== undefined) { fields.push('descripcion=?'); values.push(descripcion); }
+    if (img !== undefined) { fields.push('img=?'); values.push(img); }
+    if (price !== undefined) { fields.push('price=?'); values.push(price); }
+    if (visible !== undefined) { fields.push('visible=?'); values.push(visible); }
+
+    if (fields.length === 0) return res.status(400).json({ error: 'No hay campos para actualizar' });
+
+    values.push(req.params.id);
+
+    await db.query(`UPDATE talleres_a_la_venta SET ${fields.join(', ')} WHERE id=?`, values);
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error actualizando taller', error: err });
+  }
+});
+
+// Eliminar un taller
+app.delete('/api/talleres/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('DELETE FROM talleres_a_la_venta WHERE id=?', [id]);
+    res.json({ message: 'Taller eliminado' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error eliminando taller', error: err });
+  }
+});
+
+
+// Obtener todos los recursos de talleres
+app.get('/api/recursos/talleres', async (req, res) => {
+  try {
+    const [recursos] = await db.query('SELECT * FROM recursos_talleres WHERE tipo = "taller"');
+    for (let r of recursos) {
+      const [archivos] = await db.query('SELECT * FROM archivos_talleres WHERE recurso_id = ?', [r.id]);
+      r.archivos = archivos;
+    }
+    res.json(recursos);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error obteniendo recursos de talleres', error: err });
+  }
+});
+
+// Crear un recurso de taller
+app.post('/api/recurso/talleres', async (req, res) => {
+  const { name, material_type } = req.body; 
+  try {
+    const [result] = await db.query(
+      'INSERT INTO recursos_talleres (name, tipo, material_type) VALUES (?, "taller", ?)', 
+      [name, material_type || null]
+    );
+    const [recurso] = await db.query('SELECT * FROM recursos_talleres WHERE id = ?', [result.insertId]);
+    res.json({ message: 'Recurso creado', recurso: recurso[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error creando recurso', error: err });
+  }
+});
+
+// Actualizar recurso de taller
+app.put('/api/recurso/talleres/:id', async (req, res) => {
+  const { name, material_type } = req.body;
+  const id = req.params.id;
+  try {
+    await db.query('UPDATE recursos_talleres SET name = ?, material_type = ? WHERE id = ?', [name, material_type || null, id]);
+    const [rows] = await db.query('SELECT * FROM recursos_talleres WHERE id = ?', [id]);
+    res.json({ message: 'Recurso actualizado', recurso: rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error actualizando recurso', error: err });
+  }
+});
+
+// Eliminar recurso de taller y sus archivos
+app.delete('/api/recurso/talleres/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    const [archivos] = await db.query('SELECT file_name FROM archivos_talleres WHERE recurso_id = ?', [id]);
+    for (let a of archivos) {
+      const filePath = path.join(__dirname, 'uploads', 'materiales', a.file_name);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
+    await db.query('DELETE FROM recursos_talleres WHERE id = ?', [id]);
+    res.json({ message: 'Recurso eliminado' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error eliminando recurso', error: err });
+  }
+});
+
+// Subir archivo a recurso de taller
+app.post('/api/upload/taller/:recursoId', upload.single('file'), async (req, res) => {
+  const recursoId = parseInt(req.params.recursoId);
+  const title = req.body.title || '';
+  const file = req.file;
+
+  if (!file) return res.status(400).json({ message: 'No se subió archivo' });
+
+  const fileUrl = `http://localhost:3000/uploads/materiales/${file.filename}`;
+  const extension = path.extname(file.originalname).toLowerCase();
+
+  try {
+    const [result] = await db.query(
+      'INSERT INTO archivos_talleres (recurso_id, title, file_name, original_name, url, extension) VALUES (?, ?, ?, ?, ?, ?)',
+      [recursoId, title, file.filename, file.originalname, fileUrl, extension]
+    );
+
+    const [rows] = await db.query('SELECT id, recurso_id, title, file_name, original_name, url, extension FROM archivos_talleres WHERE id = ?', [result.insertId]);
+    const archivo = rows[0];
+
+    res.json({ message: 'Archivo subido', file: archivo });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error subiendo archivo', error: err });
+  }
+});
+
+// Actualizar nombre de archivo
+app.put('/api/archivo/talleres/:id', async (req, res) => {
+  const { newName } = req.body;
+  const id = req.params.id;
+  try {
+    await db.query('UPDATE archivos_talleres SET original_name = ? WHERE id = ?', [newName, id]);
+    res.json({ message: 'Archivo actualizado' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error actualizando archivo', error: err });
+  }
+});
+
+// Eliminar archivo de recurso de taller
+app.delete('/api/archivo/talleres/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    const [rows] = await db.query('SELECT file_name FROM archivos_talleres WHERE id = ?', [id]);
+    if (!rows.length) return res.status(404).json({ message: 'Archivo no encontrado' });
+
+    const filePath = path.join(__dirname, 'uploads', 'materiales', rows[0].file_name);
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+
+    await db.query('DELETE FROM archivos_talleres WHERE id = ?', [id]);
+    res.json({ message: 'Archivo eliminado' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error eliminando archivo', error: err });
+  }
+});
 
 // Iniciar servidor
 app.listen(port, () => {
