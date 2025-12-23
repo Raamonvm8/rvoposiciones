@@ -1,1 +1,61 @@
-<p>compra-material works!</p>
+<div class="compra-container">
+
+  <!-- Carrito grande (arriba) -->
+  <h1>🛒 Tu carrito</h1>
+  <div class="cart-large">
+    <div class="cart-item" *ngFor="let item of carrito">
+      <img [src]="item.img" alt="{{ item.titulo }}" class="cart-img">
+      <div class="cart-details">
+        <h2>{{ item.titulo }}</h2>
+        <p>{{ item.descripcion }}</p>
+        <p class="price">{{ item.price }} €</p>
+        <button (click)="removeFromCart(item.uuid)" class="btn-remove">Eliminar</button>
+      </div>
+    </div>
+  </div>
+  <div class="cart-summary">
+    <h3>Total: {{ totalCarritoFormatted }} €</h3>
+    <button (click)="goToCheckout()" class="btn-buy">Finalizar compra</button>
+  </div>
+
+  <!-- Sticky compacto (siempre en DOM, se oculta/activa con scroll) -->
+  <div class="carrito-sticky" [class.active]="showSticky">
+    <div class="carrito-items">
+      <div class="cart-item-horizontal" *ngFor="let item of carrito">
+        <img [src]="item.img" alt="{{ item.titulo }}">
+        <span>{{ item.titulo }}</span>
+        <span class="price">{{ item.price }} €</span>
+        <button (click)="removeFromCart(item.uuid)" class="btn-remove">x</button>
+      </div>
+    </div>
+
+    <div class="carrito-summary">
+      <span>Total: {{ totalCarritoFormatted }} €</span>
+      <button (click)="goToCheckout()" class="btn-buy">Finalizar compra</button>
+    </div>
+  </div>
+
+  <h2>Añadir materiales</h2>
+  <div class="materiales-list">
+    <div class="material-card" *ngFor="let m of materiales">
+      <img [src]="m.img" alt="{{ m.titulo }}">
+      <h3>{{ m.titulo }}</h3>
+      <p>{{ m.price }} €</p>
+      <button (click)="addToCart(m)" [disabled]="isInCart(m.uuid)">
+        Añadir al carrito
+      </button>
+    </div>
+  </div>
+
+  <h2>Añadir talleres</h2>
+    <div class="materiales-list">
+        <div class="material-card taller" *ngFor="let t of talleres">
+            <img [src]="t.img">
+            <h3>{{ t.titulo }}</h3>
+            <p>{{ t.price }} €</p>
+            <button (click)="addToCart(t)" [disabled]="isInCart(t.uuid)">
+            Añadir al carrito
+            </button>
+        </div>
+    </div>
+</div>
