@@ -3,3 +3,20 @@ html, body {
     margin: 0 !important;
     padding: 0 !important;
 }
+
+.my-confirm-button {
+  background-color: #042d64 !important;
+  color: white !important;
+  border-radius: 8px !important;
+  padding: 8px 20px !important;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
