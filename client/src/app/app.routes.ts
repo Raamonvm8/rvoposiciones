@@ -15,7 +15,7 @@ export const routes: Routes = [
     { path: 'libros', component: LibrosComponent},
     { path: 'materiales', component: MaterialesComponent},
     { path: 'talleres', component: TalleresComponent},
-    { path: 'admin-panel', component: AdminPanelComponent},
+    { path: '6278ed5s43sf23fevsn82-rdyrw5ym-ad112q-w334r-w2jshgfq2uei8dygw-dshbvacwujfnbwt5', component: AdminPanelComponent},
     { path: 'compra/:topic', component: CompraMaterialComponent },
 
 
