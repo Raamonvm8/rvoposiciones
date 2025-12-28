@@ -55,6 +55,12 @@ export class TalleresComponent implements OnInit{
     newRecursoPlanUuid: string = '';
     newRecursoName: string = '';
     ModalRegisterLoginService: any;
+
+    notifyEmailValue: string = '';
+    notifyMessage: string = '';
+    notifySuccess: boolean = false;
+
+    talleresLoaded = false;
   
     constructor(private http: HttpClient, private modalRegisterLogin: ModalRegisterLoginService, private router: Router, private cd: ChangeDetectorRef, private cartService: CartService) {
     }
@@ -65,28 +71,62 @@ export class TalleresComponent implements OnInit{
       onAuthStateChanged(auth, async (user) => {
         this.user = user;
         this.loadingUser = false;
-  
+
         if (user) {
           this.http.get(`http://localhost:3000/api/users/${user.uid}`).subscribe((res: any) => {
             this.userData = res;
             this.isAdmin = !!res.isAdmin;  
-            this.cd.detectChanges();
-  
-            // Cargar recursos una vez que userData está listo
+
+            // Parsear talleres si viene como string
+            if (this.userData?.talleres && typeof this.userData.talleres === 'string') {
+              try {
+                this.userData.talleres = JSON.parse(this.userData.talleres);
+              } catch {
+                this.userData.talleres = [];
+              }
+            }
+
             this.loadRecursos();
+            this.loadTalleres(); 
           });
         } else {
+          // Usuario no logueado
           this.loadRecursos();
+          this.loadTalleres();
         }
-        this.http.get('http://localhost:3000/api/talleres').subscribe((res: any) => {
-          this.planes = res.map((p: any) => ({
-            ...p,
-            visible: p.visible ?? false 
-          }));
-        });
-  
       });
     }
+
+    // Nueva función para cargar talleres
+    loadTalleres() {
+      this.http.get('http://localhost:3000/api/talleres').subscribe((res: any) => {
+        this.planes = res.map((p: any) => {
+          let fechaDate = '';
+          let fechaTime = '';
+
+          if (p.fecha) {
+            const d = new Date(p.fecha); // tu fecha del backend
+            fechaDate = d.toISOString().slice(0, 10); // YYYY-MM-DD
+            fechaTime = d.toTimeString().slice(0, 5); // HH:MM
+          }
+
+          return {
+            ...p,
+            visible: p.visible ?? false,
+            fechaCountdown: p.fecha ? this.getCountdown(p.fecha) : 'sin fecha',
+            fechaDate,
+            fechaTime
+          };
+        });
+
+        this.planes.sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
+        
+        this.startCountdowns();
+        this.updateEnrolledTalleres(); 
+        this.talleresLoaded = false;
+      });
+    }
+
 
     loadRecursos() {
       this.http.get('http://localhost:3000/api/recursos/talleres').subscribe((res: any) => {
@@ -149,19 +189,6 @@ export class TalleresComponent implements OnInit{
     redirectToRegister(materialUuid: string) {
       this.modalRegisterLogin.setPendingBuy(materialUuid);
       this.modalRegisterLogin.openLogin();
-    }
-  
-    onRegisterSuccess() {
-      this.modalRegisterLogin.closeRegister();
-  
-      setTimeout(() => {
-        this.modalRegisterLogin.pendingBuy$.subscribe(topic => {
-          if ((topic === 'primaria' || topic === 'PT') && this.isLogged) {
-            this.redirectToCompra(topic);
-            this.modalRegisterLogin.clearPendingBuy();
-          }
-        });
-      }, 100); 
     }
   
     redirectToCompra(materialUuid: string) {
@@ -285,8 +312,6 @@ export class TalleresComponent implements OnInit{
       const formData = new FormData();
       formData.append('file', recurso.selectedFile, recurso.selectedFile.name);
       formData.append('title', this.moduleTitle || '');
-
-      console.log('📌 FormData preparado:', formData);
   
       this.http.post(`http://localhost:3000/api/upload/taller/${recurso.id}`, formData)
         .subscribe({
@@ -340,6 +365,13 @@ export class TalleresComponent implements OnInit{
           return 'assets/icons/default-icon.png';  // Icono genérico para otros tipos
       }
     }
+
+    sidebarOpen: boolean = false;
+
+    toggleSidebar() {
+      this.sidebarOpen = !this.sidebarOpen;
+    }
+
   
     toggleRecurso(recurso: any) {
       recurso.isExpanded = !recurso.isExpanded; 
@@ -353,16 +385,24 @@ export class TalleresComponent implements OnInit{
     }
   
     guardarPlan(plan: any) {
+      const fecha = plan.fechaDate || new Date().toISOString().slice(0,10);
+      const hora = plan.fechaTime || "00:00";
+
+      const localDate = new Date(`${fecha}T${hora}:00`);
+
+      const fechaUTC = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000)
+      const fechaSQL = fechaUTC.toISOString().slice(0, 19).replace('T', ' ');
+
       const payload = {
         titulo: plan.titulo,
         descripcion: plan.descripcion,
         price: plan.price,
-        // visible: plan.visible 
+        fecha: fechaSQL
       };
-  
+
       this.http.put(`http://localhost:3000/api/talleres/${plan.id}`, payload)
         .subscribe({
-          next: () => console.log('Taller actualizado'),
+          next: () => console.log('Taller actualizado con fecha y hora:', fechaSQL),
           error: err => console.error('Error actualizando taller:', err)
         });
     }
@@ -423,6 +463,19 @@ export class TalleresComponent implements OnInit{
         });
     }
 
+    enrolledTalleres: any[] = [];
+
+    updateEnrolledTalleres() {
+      if (!this.userData?.talleres || !this.planes.length) {
+        this.enrolledTalleres = [];
+        return;
+      }
+      this.enrolledTalleres = this.planes.filter(plan => 
+        this.userData.talleres.includes(plan.uuid || plan.id)
+      );
+      this.cd.detectChanges();
+    }
+
     deletePlan(index: number) {
       const plan = this.planes[index];
       if (!confirm('¿Seguro que quieres eliminar este taller?')) return;
@@ -432,19 +485,126 @@ export class TalleresComponent implements OnInit{
       });
     } 
 
-
     addToCartTaller(plan: any) {
-      if (!plan.uuid) plan.uuid = plan.id || crypto.randomUUID();
-
-      const item = {
+      this.cartService.addToCart({
         uuid: plan.uuid,
         titulo: plan.titulo,
         price: plan.price,
         img: plan.img,
-        descripcion: plan.descripcion
-      };
+        descripcion: plan.descripcion,
+        type: 'taller'
+      });
+    }
 
-      this.cartService.addToCart(item);
+    startCountdowns() {
+      setInterval(() => {
+        this.planes.forEach(plan => {
+          if (plan.fecha) {
+            const countdown = this.getCountdown(plan.fecha);
+            plan.fechaCountdown = countdown.texto;
+            plan.diasRestantes = countdown.diasRestantes;
+            plan.mesesRestantes = countdown.mesesRestantes;
+          }
+        });
+        this.cd.detectChanges();
+      }, 1000);
+    }
+
+    getCountdown(fechaInput: string | Date): { texto: string, diasRestantes: number, mesesRestantes: number } {
+      if (!fechaInput) return { texto: 'Sin fecha', diasRestantes: 999, mesesRestantes: 12 };
+
+      let fechaSQL: string;
+
+      // Convertir Date a string si llega como Date
+      if (fechaInput instanceof Date) {
+        fechaSQL = fechaInput.toISOString().slice(0, 19).replace('T', ' ');
+      } else {
+        fechaSQL = fechaInput.toString().trim();
+      }
+
+      // Aceptar tanto "2026-02-23 18:00:00" como "2026-02-23T18:00:00"
+      fechaSQL = fechaSQL.replace('T', ' ').split('.')[0]; 
+
+      const [datePart, timePart] = fechaSQL.split(' ');
+      if (!datePart || !timePart) return { texto: 'Fecha inválida', diasRestantes: 999, mesesRestantes: 12 };
+
+      const [year, month, day] = datePart.split('-').map(Number);
+      const [hour, minute, second] = timePart.split(':').map(Number);
+
+      if ([year, month, day, hour, minute, second].some(isNaN)) return { texto: 'Fecha inválida', diasRestantes: 999, mesesRestantes: 12 };
+
+      const endTime = Date.UTC(year, month - 1, day, hour, minute, second);
+      const now = Date.now();
+      let diff = endTime - now;
+
+      if (diff <= 0) return { texto: '¡Ya comenzó!', diasRestantes: 0, mesesRestantes: 0 };
+
+      const meses = Math.floor(diff / (30 * 24 * 60 * 60 * 1000));
+      diff -= meses * (30 * 24 * 60 * 60 * 1000);
+
+      const dias = Math.floor(diff / (24 * 60 * 60 * 1000));
+      diff -= dias * (24 * 60 * 60 * 1000);
+
+      const horas = Math.floor(diff / (60 * 60 * 1000));
+      diff -= horas * (60 * 60 * 1000);
+
+      const minutos = Math.floor(diff / (60 * 1000));
+      diff -= minutos * (60 * 1000);
+
+      const segundos = Math.floor(diff / 1000);
+
+      const textoSinMesesH = `Quedan ${dias} días ${horas}:${minutos}:${segundos} horas`;
+      const textoSinDiasH = `Quedan ${horas}:${minutos}:${segundos} horas`;
+      const textoH = `Quedan ${meses} meses ${dias} días ${horas}:${minutos}:${segundos} horas`;
+
+      const textoSinMeses = `Quedan ${dias} días ${minutos}:${segundos} minutos`;
+      const textoSinDias = `Quedan ${minutos}:${segundos} minutos`;
+      const texto = `Quedan ${meses} meses ${dias} días ${minutos}:${segundos} minutos`;
+
+      if(horas>0){
+        if (meses > 0) {
+          return { texto: textoH, diasRestantes: dias, mesesRestantes: meses };
+        } else if (dias > 0) {
+          return { texto: textoSinMesesH, diasRestantes: dias, mesesRestantes: meses };
+        } 
+        return { texto: textoSinDiasH, diasRestantes: 0, mesesRestantes: meses };
+      }else{
+        if (meses > 0) {
+          return { texto, diasRestantes: dias, mesesRestantes: meses };
+        } else if (dias > 0) {
+          return { texto: textoSinMeses, diasRestantes: dias, mesesRestantes: meses };
+        } 
+        return { texto: textoSinDias, diasRestantes: 0, mesesRestantes: meses };
+      }
+      
+    }
+
+    hasTalleresActivos(): boolean {
+      return this.planes?.some(p => p.visible);
+    }
+
+    notifyEmail() {
+      const correo = this.notifyEmailValue?.trim().toLowerCase();
+      if (!correo) return;
+
+      this.http.post('http://localhost:3000/api/recolecta', {
+        correo
+      }).subscribe({
+        next: (res: any) => {
+          if (res.message?.includes('ya registrado')) {
+            this.notifySuccess = false;
+            this.notifyMessage = 'ℹ️ Este correo ya estaba registrado.';
+          } else {
+            this.notifySuccess = true;
+            this.notifyMessage = '✅ Te avisaremos cuando haya nuevos talleres.';
+            this.notifyEmailValue = '';
+          }
+        },
+        error: () => {
+          this.notifySuccess = false;
+          this.notifyMessage = '❌ Error guardando el correo. Inténtalo más tarde.';
+        }
+      });
     }
 
 }

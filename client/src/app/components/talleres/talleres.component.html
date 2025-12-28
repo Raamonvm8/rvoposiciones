@@ -1,6 +1,7 @@
 <h1>TALLERES</h1>
 
 <!-- 🔹 Secciones de talleres -->
+
 <ng-container *ngIf="userData">
   <ng-container *ngFor="let recurso of recursos; let i = index">
     
@@ -122,6 +123,8 @@
             
             <div class="plan-content">
                 <input [(ngModel)]="plan.titulo" name="titulo-{{i}}" class="editable-input" />
+                <input type="date" [(ngModel)]="plan.fechaDate" name="fechaDate-{{i}}" class="editable-input" />
+                <input type="time" [(ngModel)]="plan.fechaTime" name="fechaTime-{{i}}" class="editable-input" />
                 <textarea [(ngModel)]="plan.descripcion" name="descripcion-{{i}}" class="editable-textarea"></textarea>
                 <p>Precio:</p>
                 <input [(ngModel)]="plan.price" name="precio-{{i}}" type="number" class="editable-input" placeholder="Precio (€)" />
@@ -138,6 +141,53 @@
     </div>
   </div>
 
+  <div 
+    *ngIf="talleresLoaded && !isAdmin && !hasTalleresActivos()" 
+    class="empty-talleres-wrapper"
+    >
+
+    <div class="empty-talleres-card">
+        <span class="empty-icon">🎨</span>
+
+        <h1>No hay nuevos talleres disponibles ahora mismo</h1>
+
+        <p class="subtitle">
+        Estamos preparando nuevas fechas y contenidos.
+        </p>
+
+        <p class="description">
+        Déjanos tu correo y te avisaremos en cuanto abramos nuevos talleres.
+        </p>
+
+        <form class="notify-form" (ngSubmit)="notifyEmail()">
+        <input 
+            type="email" 
+            placeholder="Tu correo electrónico"
+            [(ngModel)]="notifyEmailValue"
+            name="notifyEmail"
+            required
+        >
+        <button type="submit">
+            Avisarme
+        </button>
+        </form>
+
+        <p class="small-note">
+        Sin spam. Solo avisos importantes.
+        </p>
+
+        <p 
+            *ngIf="notifyMessage"
+            [ngClass]="{ 'success-msg': notifySuccess, 'error-msg': !notifySuccess }"
+            >
+            {{ notifyMessage }}
+        </p>
+    </div>
+
+    </div>
+
+
+
     <!-- USUARIO normal -->
     <div *ngIf="!isAdmin">
         <div class="planes-grid">
@@ -148,16 +198,34 @@
                     <div class="plan-content">
                         <h2>{{ plan.titulo }}</h2>
                         <p>{{ plan.descripcion }}</p>
+                        <h4 
+                            *ngIf="plan.fechaCountdown" 
+                            [ngClass]="plan.mesesRestantes === 0 && plan.diasRestantes <= 7 ? 'text-red' : ''">
+                            {{ plan.fechaCountdown }}
+                        </h4>
                         <button class="btn-comprar" (click)="handleBuyTaller(plan)">
                         <i class="fa-solid fa-cart-shopping"></i> Comprar acceso
                         </button>
                     </div>
                 </div>
             </ng-container>
-
         </div>
     </div>
 
 
 
 </div>
+
+<!-- TAB CON TALLERES ACTIVOS
+<div class="sidebar-tab" (click)="toggleSidebar()">Talleres 📂</div>
+
+<div class="sidebar" [ngClass]="{ 'open': sidebarOpen }">
+  <h3>Talleres en los que estás inscrito</h3>
+  <ul>
+    <li *ngFor="let taller of enrolledTalleres">{{ taller.titulo }}</li>
+  </ul>
+</div>
+
+-->
+
+
