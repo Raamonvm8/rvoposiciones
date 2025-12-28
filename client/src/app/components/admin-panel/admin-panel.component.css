@@ -18,32 +18,46 @@
   width: 100%;
   border-collapse: collapse;
   overflow: hidden;
-  border-radius: 10px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  cursor: pointer;
+}
+.users-table2 {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 
-.users-table thead {
+.users-table thead,
+.users-table2 thead {
   background-color: #042d64;
   color: white;
 }
 
-.users-table thead th{
+.users-table thead th,
+.users-table2 thead th{
   text-align: center;
 }
 
-.users-table th, .users-table td {
+.users-table th, .users-table td,
+.users-table2 th, .users-table2 td {
   padding: 12px 15px;
   text-align: left;
+  user-select: none;
 }
 
-.users-table tbody tr {
+.users-table tbody tr,
+.users-table2 tbody tr {
   background-color: white;
   border-bottom: 1px solid #e0e0e0;
   transition: background-color 0.2s;
 
 }
 
-
-.users-table tbody tr:hover {
+.users-table tbody tr:hover,
+.users-table2 tbody tr:hover {
   background-color: #f1f6fb;
 }
 
@@ -55,4 +69,25 @@
 .not-verified {
   color: red;
   font-weight: bold;
+}
+
+.has-access { color: green; font-weight: bold; }
+.no-access { color: red; font-weight: bold; }
+.danger { background-color: #c62828; color: white; }
+.add-access { margin: 10px 0; }
+
+.table-scroll {
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.search-input {
+  margin-bottom: 12px;
+  padding: 6px 10px;
+  width: 250px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
 }
