@@ -76,7 +76,6 @@
   transform: translateY(0);
 }
 
-
 .feature-card img {
   width: 60px;
   height: 60px;
@@ -116,7 +115,6 @@
   opacity: 1;
   transform: translateY(0);
 }
-
 
 /* Animaciones */
 @keyframes fadeInUp {

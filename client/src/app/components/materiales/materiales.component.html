@@ -1,10 +1,9 @@
 <h1>MATERIALES</h1>
-
 <!-- 🔹 Secciones de materiales -->
 <ng-container *ngIf="userData">
   <ng-container *ngFor="let recurso of recursos; let i = index">
     
-    <!-- Mostrar siempre para admin, o según permisos -->
+    <!-- Mostrar siempre para admin -->
     <form *ngIf="isAdmin || !recurso.material_type || userData?.materiales?.includes(recurso.material_type)"
       (ngSubmit)="onUpload(recurso)" enctype="multipart/form-data">
 
@@ -201,5 +200,4 @@
             </ng-container>
         </div>
     </div>
-
 </div>

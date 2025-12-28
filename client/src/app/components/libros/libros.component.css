@@ -75,11 +75,9 @@
     line-height: 1.2;
 }
 
-
   /* Diseño responsive */
   @media (max-width: 768px) {
     .libros-grid {
       flex-direction: column; 
     }
   }
-  

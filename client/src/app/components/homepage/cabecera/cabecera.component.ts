@@ -1,7 +1,6 @@
 import { AfterViewInit, Component, HostListener } from '@angular/core';
 import videojs from 'video.js';
 
-
 @Component({
     selector: 'app-cabecera',
     standalone: true,

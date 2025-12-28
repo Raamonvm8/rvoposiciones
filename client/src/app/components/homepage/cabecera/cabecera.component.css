@@ -85,6 +85,11 @@
   will-change: transform; 
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 /* animaciones entrada-salida  */
 @keyframes slideInLeft {
@@ -206,4 +211,3 @@
     width: 180px;
   }
 }
-

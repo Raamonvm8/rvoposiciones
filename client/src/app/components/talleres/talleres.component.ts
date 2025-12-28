@@ -127,7 +127,6 @@ export class TalleresComponent implements OnInit{
       });
     }
 
-
     loadRecursos() {
       this.http.get('http://localhost:3000/api/recursos/talleres').subscribe((res: any) => {
         let userTalleres = this.userData?.talleres;
@@ -302,7 +301,7 @@ export class TalleresComponent implements OnInit{
     }
   
     cancelEdit(recurso: { name: string, isEditing: boolean, originalName: string }) {
-      recurso.name = recurso.originalName; // Restaurar el nombre original
+      recurso.name = recurso.originalName; 
       recurso.isEditing = false;
     }
   
@@ -342,27 +341,26 @@ export class TalleresComponent implements OnInit{
     getIconForFile(extension: string): string {
       switch (extension) {
         case '.pdf':
-          return 'assets/icons/pdf-icon.png';  // Ruta a tu icono de PDF
+          return 'assets/icons/pdf-icon.png'; 
         case '.mp4':
         case '.mov':
-          return 'assets/icons/video-icon.png';  // Ruta a tu icono de MP4
+          return 'assets/icons/video-icon.png'; 
         case '.jpg':
         case '.jpeg':
         case '.png':
         case '.heic':
-          return 'assets/icons/imagen-icon.png';  // Icono para imágenes
+          return 'assets/icons/imagen-icon.png'; 
         case '.doc':
         case '.docx':
-          return 'assets/icons/word-icon.png';  // Icono de Word
+          return 'assets/icons/word-icon.png';
         case '.xlsx':
         case '.xls':
           return 'assets/icons/microsoft-excel-icon.png';
         case '.ppt':
         case '.pptx':
-          return 'assets/icons/ppt-icon.png';  // Icono de PowerPoint
-        // Agrega más extensiones según lo que necesites
+          return 'assets/icons/ppt-icon.png'; 
         default:
-          return 'assets/icons/default-icon.png';  // Icono genérico para otros tipos
+          return 'assets/icons/default-icon.png';
       }
     }
 
@@ -606,5 +604,4 @@ export class TalleresComponent implements OnInit{
         }
       });
     }
-
 }

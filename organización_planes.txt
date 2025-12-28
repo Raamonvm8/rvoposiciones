@@ -38,7 +38,9 @@ desde la BD. Y arreglar quitar accesos.
     7. ✅Login
     8. ✅carrito
 - En el pago desplegable stripe no se ve el pagar Ya boton.
+- Avisar tanto en materiales como talleres el funcionamiento al pagar.
 - Linkedin para footer.
+- Ante cualquier incidencia de talleres, link a whatsapp o form de contacto.
 - Media queris para pantallas largas se queda estrecho en 'sobre ramon' y en talleres/materiales 
 hacer la cantidad segun espacio en la pantalla no solo 3x3
 - Contraseña robusta.

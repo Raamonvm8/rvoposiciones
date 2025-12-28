@@ -16,5 +16,4 @@ export class FooterComponent {
   youtube: string = 'https://www.youtube.com/@oposicionaeducacionramonva3718/videos';
   //tiktok: string = 'https://www.tiktok.com/@ludenatura?is_from_webapp=1&sender_device=pc';
   //whatsapp: string = 'https://wa.me/34600420871';
-
 }

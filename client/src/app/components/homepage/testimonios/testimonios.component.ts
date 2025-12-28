@@ -9,9 +9,8 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/co
 })
 
 export class TestimoniosComponent implements OnInit, OnDestroy {
-    @ViewChild('carousel', { static: true }) carouselRef!: ElementRef<HTMLDivElement>;
+  @ViewChild('carousel', { static: true }) carouselRef!: ElementRef<HTMLDivElement>;
 
-  
   testimonios = [
     { img: '../../../../assets/homepage/capturas-whatsapp/IMG_7382.PNG', alt: 'Testimonio 1' },
     { img: '../../../../assets/homepage/capturas-whatsapp/IMG_7383.PNG', alt: 'Testimonio 2' },
@@ -60,7 +59,6 @@ export class TestimoniosComponent implements OnInit, OnDestroy {
     this.stopAuto();
   }
 
-  // ---- Auto-play ----
   private startAuto() {
     this.stopAuto();
     this.intervalId = setInterval(() => this.next(), 5000);
@@ -79,7 +77,6 @@ export class TestimoniosComponent implements OnInit, OnDestroy {
     this.snapToIndex(true);
   }
 
-  // Calcula la rotación base para que el slide currentIndex quede al frente (ángulo 0)
   private snapToIndex(animate: boolean) {
     this.animating = animate;
     this.baseRotation = -this.currentIndex * this.stepDeg;
@@ -129,7 +126,6 @@ export class TestimoniosComponent implements OnInit, OnDestroy {
     return e instanceof MouseEvent ? e.clientX : e.touches[0].clientX;
   }
 
-  // ---- Estilos de cada slide ----
   private get totalRotation(): number {
     return this.baseRotation + this.dragRotation;
   }
@@ -192,6 +188,4 @@ export class TestimoniosComponent implements OnInit, OnDestroy {
     return style;
   }
 
-
 }
-

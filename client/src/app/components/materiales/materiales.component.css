@@ -1,4 +1,3 @@
-
 h1 {
     font-size: 40px;
     color: #042d64;
@@ -38,7 +37,6 @@ form {
     border-radius: 8px;
     box-shadow: 1px 2px 6px black;
 }
-
 
 form button {
     width: 80px;
@@ -96,7 +94,6 @@ form button:hover{
 .recurso-header a {
     text-align: right;
 }
-
 
 .container-add {
     display: flex;
@@ -263,12 +260,10 @@ form button:hover{
   white-space: nowrap;
 }
 
-
 .file-input {
   display: none;
 }
 
-  
 .recursos-display {
     display: flex;
     flex-direction: column;
@@ -280,7 +275,6 @@ form button:hover{
     display: flex;
     gap: 10px;
 }
-
 
 .titulo-principal {
   font-size: 2.5rem;
@@ -307,7 +301,6 @@ form button:hover{
   justify-content: center;
   gap: 60px;
 }
-
 
 .plan-card {
     position: relative;
@@ -338,7 +331,6 @@ form button:hover{
   height: 200px;
   object-fit: cover;
 }
-
 
 .plan-content {
   flex: 1;
@@ -381,7 +373,6 @@ form button:hover{
   transform: translateY(-3px);
 }
 
-
 .editable-input {
   width: 100%;
   font-size: 1.2rem;
@@ -414,16 +405,13 @@ form button:hover{
   background: #1856a8;
 }
 
-
-
-/* Fondo del modal */
 .modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6); /* Fondo oscuro semitransparente */
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -431,7 +419,6 @@ form button:hover{
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Contenido del modal */
 .modal-content {
   background-color: #ffffff;
   padding: 30px 40px;
@@ -445,7 +432,6 @@ form button:hover{
   animation: slideUp 0.3s ease-in-out;
 }
 
-/* Título */
 .modal-content h3 {
   margin: 0 0 15px 0;
   font-size: 1.5rem;
@@ -453,14 +439,12 @@ form button:hover{
   color: #333;
 }
 
-/* Labels */
 .modal-content label {
   font-weight: 500;
   margin-bottom: 5px;
   color: #555;
 }
 
-/* Inputs y select */
 .modal-content input,
 .modal-content select {
   padding: 10px 12px;
@@ -524,7 +508,6 @@ form button:hover{
   from {transform: translateY(20px); opacity: 0;}
   to {transform: translateY(0); opacity: 1;}
 }
-
 
 .btn-visible {
   background: none;
@@ -600,7 +583,7 @@ form button:hover{
 .notify-form button {
   box-sizing: border-box;
   padding: 12px 18px;
-  height: auto;        /* 👈 clave */
+  height: auto; 
   line-height: 1.2;
 }
 

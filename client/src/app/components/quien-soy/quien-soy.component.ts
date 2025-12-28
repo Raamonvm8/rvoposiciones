@@ -17,6 +17,4 @@ export class QuienSoyComponent {
             img.style.transform = `translateY(${offset}px) scale(1.02)`; // 👈 se mueve + leve zoom
         });
     }
-
-
 }

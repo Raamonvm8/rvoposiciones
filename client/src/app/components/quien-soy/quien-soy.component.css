@@ -11,7 +11,6 @@
   align-items: center;
 }
 
-/* Sección intro */
 .quien-soy.intro {
   background: linear-gradient(135deg, #f5f7fa, #e2e8f0);
 }
@@ -50,7 +49,6 @@
   will-change: transform;
 }
 
-/* Sección experiencia */
 .quien-soy.experiencia {
   background: #fff;
   text-align: left;
@@ -106,7 +104,6 @@
 .container-final p{
   margin-top: 50px;
 }
-
 
 @media (max-width: 768px) {
 

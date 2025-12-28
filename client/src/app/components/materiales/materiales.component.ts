@@ -3,14 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormsModule, NgModel } from '@angular/forms';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
-import { doc, Firestore, getDoc } from 'firebase/firestore';
-import { use } from 'video.js/dist/types/tech/middleware';
-import { DB } from '../../../environments/environment';
 import { Route, Router } from '@angular/router';
 import { ModalRegisterLoginService } from '../../services/modal-register-login.service';
-import { combineLatest } from 'rxjs';
 import { CartService } from '../../services/cart.service';
-
 
 interface UploadedFile {
   id?: number;
@@ -47,7 +42,6 @@ export class MaterialesComponent implements OnInit, AfterViewInit{
 
   @ViewChild('logoRef', { static: true }) logo!: ElementRef<HTMLImageElement>;
 
-
   posX = 10;
   posY = 10;
   speedX = 3;
@@ -57,7 +51,6 @@ export class MaterialesComponent implements OnInit, AfterViewInit{
   moduleTitle: string = '';
 
   selectedFileName?: string;
-
 
   user: User | null = null;
   isAdmin: boolean = false;
@@ -154,7 +147,6 @@ export class MaterialesComponent implements OnInit, AfterViewInit{
     }, error => console.error('Error cargando recursos:', error));
   }
 
-
   get isLogged(): boolean {
     return !!this.user;
   }
@@ -213,7 +205,7 @@ export class MaterialesComponent implements OnInit, AfterViewInit{
   
   editFileName(file: UploadedFile) {
     file.isEditing = true;
-    file.newFileName = file.fileNameOriginal; // Inicializa el nuevo nombre con el nombre original
+    file.newFileName = file.fileNameOriginal; 
   }
 
   // Función para guardar el nuevo nombre del archivo
@@ -466,7 +458,6 @@ export class MaterialesComponent implements OnInit, AfterViewInit{
     );
   }
 
-
   notifyEmail() {
     const correo = this.notifyEmailValue?.trim().toLowerCase();
     if (!correo) return;
@@ -516,10 +507,4 @@ export class MaterialesComponent implements OnInit, AfterViewInit{
 
     requestAnimationFrame(() => this.animateLogo());
   }
-
-
-
-
-
-
 }

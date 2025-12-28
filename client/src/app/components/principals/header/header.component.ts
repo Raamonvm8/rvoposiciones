@@ -1,19 +1,12 @@
 import { Component, NgModule } from '@angular/core';
-//import { AuthService } from '../auth.service';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
-import { AuthService } from '../../../services/auth.service';
 import { RouterLink } from '@angular/router';
 import { createUserWithEmailAndPassword, getAuth, onAuthStateChanged, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
 import { auth, app, DB } from '../../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { getAbsoluteURL } from 'video.js/dist/types/utils/url';
 import { ModalRegisterLoginService } from '../../../services/modal-register-login.service';
 import Swal from 'sweetalert2';
-
-
-
 
 @Component({
     selector: 'app-header',
@@ -99,7 +92,6 @@ export class HeaderComponent {
       }
     });
 
-
     this.authModal.showLoginModal$.subscribe(show => {
       this.muestraLogin = show;
     });
@@ -108,7 +100,6 @@ export class HeaderComponent {
       this.showRegisterModal = show;
     });
   }
-
 
   onSubmit(): void {
     signInWithEmailAndPassword(auth, this.email, this.password)
@@ -360,7 +351,4 @@ export class HeaderComponent {
     this.showContraOlvidada = false;
   }
   
-
 }
-
-

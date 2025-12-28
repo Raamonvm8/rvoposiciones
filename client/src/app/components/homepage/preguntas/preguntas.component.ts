@@ -8,6 +8,7 @@ import { Component } from '@angular/core';
     templateUrl: './preguntas.component.html',
     styleUrl: './preguntas.component.css'
 })
+
 export class PreguntasComponent {
   preguntas = [
     { titulo: '¿Se puede descargar el material?', respuesta: 'Todo el material que proporciono es completamente descargable, lo que les permite acceder a él en cualquier momento y desde cualquier dispositivo. Es importante destacar que, aunque se pueden descargar estos archivos para su uso personal, no está permitido compartirlos ni redistribuirlos. También, los que adquieran el material, tendrán su sección habilitada en Materiales, donde podrán ver siempre los archivos subidos del material correspondiente.', isOpen: false },
