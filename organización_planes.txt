@@ -22,12 +22,50 @@ PASOS PROXIMOS: ❌ ✅
 ✅ Tener claro lo que se quiere con talleres (si puedo hacer lo mismo que materiales de mostrar 
 por defecto algunos siempre o solo dar valores informativos).
 ✅ Cuando le doy a comprar material no me sale como añadido al carro
-- Funcionalidad de pago de talleres y recursos.
+✅ Tengo el backend de pagando, para que el usuario finalice compra y se añada a su usuario los item pagados
+pero no sé como seguir la logica en frontend ya que talleres y materiales no usan type.
+✅ Arreglar admin Panel para que se añadan usuarios a un taller y se mantengan los demás. SIno, hacerlo manual
+desde la BD. Y arreglar quitar accesos.
+✅ Header, añadir seccion Administrador solo visible para administradores
+✅ Arreglar Header para pc normal. Choca con moviles.
+✅ Mediaquerys:
+    1. ✅ Header
+    2. ✅Homepage
+    3. ✅Sobre Ramon
+    4. ✅Mis libros
+    5. ✅materiales
+    6. ✅talleres
+    7. ✅Login
+    8. ✅carrito
+- En el pago desplegable stripe no se ve el pagar Ya boton.
+- Linkedin para footer.
+- Media queris para pantallas largas se queda estrecho en 'sobre ramon' y en talleres/materiales 
+hacer la cantidad segun espacio en la pantalla no solo 3x3
+- Contraseña robusta.
+- Poner links clickables en las secciones de talleres que han pagado para google meet. (preguntar si factible)
+✅ Verificacion del corrreo mas vistosa.
+✅ Ocultar botones de acceso al curso.
+✅ Ocultar al crear cuenta lo de elegir pagos.
+- Fases talleres/materiales vacíos:
+1. Empty state cuando no hay talleres. Sección “Talleres anteriores” (solo lectura). Sin reseñas todavía
+2. Reseñas simples. Sin edición. Sin respuestas admin.
+3. Edición 48h. Respuesta admin. Moderación.
+- NO eliminar talleres cuando finalizan, mejor ocultar, hasta un maximo de días que tengan acceso a recursos
+de ese taller. Así tienen visibles los recursos de ese taller.
+- Seguridad:
+    1. Admin panel solo acceso a admin.
 - Hacer sección recursos pagina que me dijo el dad
 - Crear sección curso, bastante completa.
-- Añadir los correos que se registran a la web tambien a recolecta_correos
+✅ Añadir los correos que se registran a la web tambien a recolecta_correos
 - Crear un video gratuito introduciendo como serán las clases y con un enganching a que se 
 subscriban. Preguntar a chatgpt una estructura y grabar a papá.
+
+CUANDO SE PUBLIQUE CURSOS:
+- Homepage
+    Descomentar componente homepage.
+    Descomentar botón.
+- Sobre Ramon:
+    Descomentar ultimo componente.
 
 
 IMPORTANTE PARA PRODUCCION:
@@ -38,3 +76,21 @@ IMPORTANTE PARA PRODUCCION:
 FUTURE IMPLEMENTATIONS:
 
 - Hidde/show files from recourses
+
+
+
+REGLAS PARA NO OLVIDAR:
+
+- Pruebas Stripe en Test:
+en Stripe asegurarnos que usamos API keys de prueba (STRIPE_SECRET_KEY y STRIPE_WEBHOOK_SECRET).
+
+instalar ngrok: npm install -g ngrok
+exponer al puerto: ngrok http 3000
+
+coger url de la terminal forwarding: https://bilobate-cinematographically-alison.ngrok-free.dev
+y añadirla en tu dashboard de Stripe → Developers → Webhooks → “Add endpoint”. añadiendo al final
+ api/stripe-webhook
+
+Guarda y copia la Signing secret → reemplaza tu .env en STRIPE_WEBHOOK_SECRET.
+
+
