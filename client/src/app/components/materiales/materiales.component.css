@@ -346,6 +346,7 @@ form button:hover{
   flex-direction: column;
   justify-content: space-between; 
   padding: 20px;
+  white-space: pre-line;
 }
 
 .plan-content h2 {
@@ -359,6 +360,8 @@ form button:hover{
   font-size: 1rem;
   flex-grow: 1; 
   margin-bottom: 20px;
+  white-space: pre-line;
+
 }
 
 .btn-comprar {
@@ -542,8 +545,111 @@ form button:hover{
   font-style: italic;
 }
 
+.empty-talleres-wrapper {
+  min-height: 70vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.empty-talleres-card {
+  max-width: 520px;
+  width: 100%;
+  background: white;
+  border-radius: 18px;
+  padding: 40px 35px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+}
+
+.empty-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 15px;
+}
+
+.empty-talleres-card h1 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.empty-talleres-card .subtitle {
+  font-size: 1.3rem;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.empty-talleres-card .description {
+  font-size: 1.1rem;
+  color: #777;
+  margin-bottom: 25px;
+}
+
+.notify-form {
+  display: flex;
+  flex-direction: row;   
+  align-items: stretch; 
+  margin: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.notify-form input,
+.notify-form button {
+  box-sizing: border-box;
+  padding: 12px 18px;
+  height: auto;        /* 👈 clave */
+  line-height: 1.2;
+}
+
+.notify-form button {
+  width: auto;  
+  white-space: nowrap; 
+}
+
+.notify-form button:hover {
+  background: #000;
+}
+
+.small-note {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.success-msg {
+  color: #2e7d32;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
+.error-msg {
+  color: #c62828;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
+.logo-bounce-container {
+  position: fixed; 
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%; 
+  pointer-events: none;
+  overflow: visible;
+  z-index: 0;
+}
+
+.logo-bounce {
+  position: fixed;  /* ya estaba así */
+  width: 60px;
+  height: 60px;
+  z-index: 1000;
+}
+
 /* Responsive para pantallas pequeñas */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .planes-grid {
     gap: 40px;
   }
@@ -553,10 +659,12 @@ form button:hover{
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .plan-card {
-    width: 90%;
+    width: 80%;
+  }
+  form {
+    margin: 5% 10%;
+
   }
 }
-
-  

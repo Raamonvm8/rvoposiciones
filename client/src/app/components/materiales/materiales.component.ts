@@ -1,6 +1,6 @@
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormsModule, NgModel } from '@angular/forms';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { doc, Firestore, getDoc } from 'firebase/firestore';
@@ -43,7 +43,16 @@ interface Recurso {
     templateUrl: './materiales.component.html',
     styleUrl: './materiales.component.css'
 })
-export class MaterialesComponent implements OnInit{
+export class MaterialesComponent implements OnInit, AfterViewInit{
+
+  @ViewChild('logoRef', { static: true }) logo!: ElementRef<HTMLImageElement>;
+
+
+  posX = 10;
+  posY = 10;
+  speedX = 3;
+  speedY = 3;
+  
   selectedFile: File | null = null; 
   moduleTitle: string = '';
 
@@ -61,11 +70,22 @@ export class MaterialesComponent implements OnInit{
   newRecursoPlanUuid: string = '';
   newRecursoName: string = '';
 
-
   ModalRegisterLoginService: any;
+
+  notifyEmailValue: string = '';
+  notifyMessage: string = '';
+  notifySuccess: boolean = false;
+
+  materialesLoaded = false;
 
   constructor(private http: HttpClient, private modalRegisterLogin: ModalRegisterLoginService, private router: Router, private cd: ChangeDetectorRef, private cartService: CartService) {
   }
+
+  ngAfterViewInit(): void {
+    this.animateLogo();
+    //throw new Error('Method not implemented.');
+  }
+
   userData: any = null;
 
   ngOnInit() {
@@ -80,11 +100,9 @@ export class MaterialesComponent implements OnInit{
           this.isAdmin = !!res.isAdmin;  
           this.cd.detectChanges();
 
-          // Cargar recursos una vez que userData está listo
           this.loadRecursos();
         });
       } else {
-        // Si no hay usuario, cargar recursos genéricos
         this.loadRecursos();
       }
       this.http.get('http://localhost:3000/api/materiales').subscribe((res: any) => {
@@ -92,6 +110,7 @@ export class MaterialesComponent implements OnInit{
           ...p,
           visible: p.visible ?? false 
         }));
+        this.materialesLoaded = true;
       });
 
     });
@@ -99,31 +118,21 @@ export class MaterialesComponent implements OnInit{
 
   loadRecursos() {
     this.http.get('http://localhost:3000/api/recursos').subscribe((res: any) => {
-      let userMateriales = this.userData?.materiales;
-      console.log('✅ Datos del usuario antes de filtrar:', this.userData);
-      console.log('Materiales del usuario:', this.userData?.materiales);
-      console.log('Tipo de materiales:', typeof this.userData?.materiales);
 
-      if (typeof userMateriales === 'string') {
-        try {
-          userMateriales = JSON.parse(userMateriales);
-        } catch (e) {
-          console.warn('No se pudo parsear materiales:', e);
-          userMateriales = [];
-        }
+      let userMateriales: string[] = [];
+
+      if (Array.isArray(this.userData?.materiales)) {
+        userMateriales = this.userData.materiales;
       }
+
+      console.log('Materiales del usuario (UUIDs):', userMateriales);
 
       this.recursos = res
         .filter((r: any) => {
-          const userMateriales = Array.isArray(this.userData?.materiales)
-            ? this.userData.materiales
-            : [];
+          if (this.isAdmin) return true;
+          if (!r.material_type) return true;
 
-          // Normalizamos ambas partes para evitar errores por espacios o mayúsculas
-          const materialType = (r.material_type || '').trim();
-          const match = userMateriales.some((m: string) => m.trim() === materialType);
-
-          return this.isAdmin || !r.material_type || match;
+          return userMateriales.includes(r.material_type);
         })
         .map((r: any) => ({
           id: r.id,
@@ -145,14 +154,6 @@ export class MaterialesComponent implements OnInit{
     }, error => console.error('Error cargando recursos:', error));
   }
 
-
-  get userHasPrimaria(): boolean {
-    return this.userData?.materiales?.includes('Primaria') ?? false;
-  }
-
-  get userHasPT(): boolean {
-    return this.userData?.materiales?.includes('PT') ?? false;
-  }
 
   get isLogged(): boolean {
     return !!this.user;
@@ -189,7 +190,14 @@ export class MaterialesComponent implements OnInit{
     const material = this.planes.find(p => p.uuid === materialUuid);
 
     if (material) {
-      this.cartService.addToCart(material);
+      this.cartService.addToCart({
+        uuid: material.uuid,
+        titulo: material.titulo,
+        price: material.price,
+        img: material.img,
+        descripcion: material.descripcion,
+        type: 'material'
+      });
     }
 
     this.router.navigate([`/compra/${materialUuid}`]);
@@ -442,5 +450,76 @@ export class MaterialesComponent implements OnInit{
       this.planes.splice(index, 1);
     });
   }
+
+  hasMaterialesVisiblesParaUsuario(): boolean {
+    if (!this.planes?.length) return false;
+
+    if (this.isAdmin) return true;
+
+    const materialesUsuario: string[] = Array.isArray(this.userData?.materiales)
+      ? this.userData.materiales
+      : [];
+
+    return this.planes.some(plan =>
+      plan.visible &&                    
+      !materialesUsuario.includes(plan.uuid) 
+    );
+  }
+
+
+  notifyEmail() {
+    const correo = this.notifyEmailValue?.trim().toLowerCase();
+    if (!correo) return;
+
+    this.http.post('http://localhost:3000/api/recolecta', {
+      correo
+    }).subscribe({
+      next: (res: any) => {
+        if (res.message?.includes('ya registrado')) {
+          this.notifySuccess = false;
+          this.notifyMessage = 'ℹ️ Este correo ya estaba registrado.';
+        } else {
+          this.notifySuccess = true;
+          this.notifyMessage = '✅ Te avisaremos cuando haya nuevos talleres.';
+          this.notifyEmailValue = '';
+        }
+      },
+      error: () => {
+        this.notifySuccess = false;
+        this.notifyMessage = '❌ Error guardando el correo. Inténtalo más tarde.';
+      }
+    });
+  }
+
+  animateLogo() {
+    const logoEl = this.logo.nativeElement;
+    const logoWidth = logoEl.offsetWidth;
+    const logoHeight = logoEl.offsetHeight;
+
+    // Limites de rebote: ventana completa
+    const minX = 0;
+    const maxX = window.innerWidth - logoWidth;
+    const minY = 0;
+    const maxY = window.innerHeight - logoHeight;
+
+    // Actualizar posición
+    this.posX += this.speedX;
+    this.posY += this.speedY;
+
+    // Rebotes en los bordes
+    if (this.posX > maxX || this.posX < minX) this.speedX *= -1;
+    if (this.posY > maxY || this.posY < minY) this.speedY *= -1;
+
+    // Aplicar posición
+    logoEl.style.left = `${this.posX}px`;
+    logoEl.style.top = `${this.posY}px`;
+
+    requestAnimationFrame(() => this.animateLogo());
+  }
+
+
+
+
+
 
 }

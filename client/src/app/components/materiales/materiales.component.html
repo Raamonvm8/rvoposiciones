@@ -135,6 +135,55 @@
     </div>
   </div>
 
+  <div 
+    *ngIf="materialesLoaded && !hasMaterialesVisiblesParaUsuario()"
+    class="empty-talleres-wrapper"
+    >
+
+    <div class="empty-talleres-card">
+        <span class="empty-icon">🎨</span>
+
+        <h1>No hay nuevos materiales disponibles ahora mismo</h1>
+
+        <p class="subtitle">
+        Estamos preparando nuevas fechas y contenidos.
+        </p>
+
+        <p class="description">
+        Déjanos tu correo y te avisaremos en cuanto abramos nuevos materiales.
+        </p>
+
+        <form class="notify-form" (ngSubmit)="notifyEmail()">
+            <input 
+                type="email" 
+                placeholder="Tu correo electrónico"
+                [(ngModel)]="notifyEmailValue"
+                name="notifyEmail"
+                required
+            >
+            <button type="submit">
+                Avísarme
+            </button>
+        </form>
+
+        <p class="small-note">
+        Sin spam. Solo avisos importantes.
+        </p>
+
+        <p 
+            *ngIf="notifyMessage"
+            [ngClass]="{ 'success-msg': notifySuccess, 'error-msg': !notifySuccess }"
+            >
+            {{ notifyMessage }}
+        </p>
+    </div>
+  </div>
+  <!-- LOGO CORRIENDO
+    <div class="logo-bounce-container">
+        <img #logoRef src="../../../favicon.ico" alt="Logo" class="logo-bounce" />
+    </div>
+  -->
+    
     <!-- USUARIO normal -->
     <div *ngIf="!isAdmin">
         <div class="planes-grid">
