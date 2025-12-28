@@ -106,3 +106,66 @@
 .container-final p{
   margin-top: 50px;
 }
+
+
+@media (max-width: 768px) {
+
+  .quien-soy {
+    padding: 20px 15px;
+  }
+
+  .quien-soy .container {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  /* Intro */
+  .quien-soy.intro .text h1 {
+    font-size: 2.2rem;
+  }
+
+  .quien-soy.intro .text h2 {
+    font-size: 1.1rem;
+  }
+
+  .quien-soy.intro .text p {
+    font-size: 1rem;
+  }
+
+  .quien-soy.intro .image {
+    margin-top: 30px;
+  }
+
+  .quien-soy.intro .image img {
+    max-width: 220px;
+  }
+
+  /* Experiencia */
+  .quien-soy.experiencia {
+    text-align: left;
+  }
+
+  .quien-soy.experiencia h2 {
+    font-size: 1.7rem;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .quien-soy.experiencia p {
+    max-width: 100%;
+    font-size: 1rem;
+  }
+
+  .quien-soy.cta h2 {
+    font-size: 1.8rem;
+  }
+
+  .quien-soy.cta p {
+    font-size: 1rem;
+  }
+
+  .btn-suscripcion {
+    width: 100%;
+    max-width: 320px;
+  }
+}
