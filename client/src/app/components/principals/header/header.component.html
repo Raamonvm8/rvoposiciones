@@ -3,8 +3,12 @@
         <img (click)="indexActual(-1)" routerLink="/home" src="../../../../favicon.ico" class="custom-logo" alt="Ludenatura" decoding="async" fetchpriority="high">     		
     </div>
     <nav>
+        
         <a (click)="indexActual(i)" [ngClass]="{'selected': selectedIndex === i}" [routerLink]="item.ruta" *ngFor="let item of items ; let i = index">
             {{item.title}}
+        </a>
+        <a (click)="indexActual(4)" [ngClass]="{'selected': selectedIndex === 4}" [routerLink]="'6278ed5s43sf23fevsn82-rdyrw5ym-ad112q-w334r-w2jshgfq2uei8dygw-dshbvacwujfnbwt5'" *ngIf="registerData.isAdmin">
+            {{nameAdmin}}
         </a>
         
     </nav>
@@ -50,21 +54,21 @@
         <div class="modal-content">
             <span class="close" (click)="closeRegisterModal()">&times;</span>
             <h2 *ngIf="registerStep === 1">Registro</h2>
-            <h2 *ngIf="registerStep === 2">Elige tu plan</h2>
+            <!--<h2 *ngIf="registerStep === 2">Elige tu plan</h2> -->
 
             <!-- Paso 1: Formulario de registro -->
             <div *ngIf="registerStep === 1" class="tab-content">
-            <form (ngSubmit)="goToPlans()">
-                <input type="text" placeholder="Nombre completo" [(ngModel)]="registerData.fullName" name="fullName" required>
-                <input type="email" placeholder="Correo electrónico" [(ngModel)]="registerData.email" name="email" required>
-                <input type="password" placeholder="Contraseña" [(ngModel)]="registerData.password" name="password" required>
-                <input type="password" placeholder="Repite la contraseña" [(ngModel)]="registerData.confirmPassword" name="confirmPassword" required>
+                <form (ngSubmit)="goToPlans()">
+                    <input type="text" placeholder="Nombre completo" [(ngModel)]="registerData.fullName" name="fullName" required>
+                    <input type="email" placeholder="Correo electrónico" [(ngModel)]="registerData.email" name="email" required>
+                    <input type="password" placeholder="Contraseña" [(ngModel)]="registerData.password" name="password" required>
+                    <input type="password" placeholder="Repite la contraseña" [(ngModel)]="registerData.confirmPassword" name="confirmPassword" required>
 
-                <button type="submit" class="btn btn-register">Siguiente</button>
-            </form>
+                    <button (click)="choosePlan('finRegistro')" class="btn btn-register">Finalizar registro</button>
+                </form>
             </div>
 
-            <!-- Paso 2: Planes -->
+            <!-- Paso 2: Planes de pago antes de registro
             <div *ngIf="registerStep === 2" class="tab-content plans">
                 <div class="plan-card">
                     <h3>Curso 2026 - 2027</h3>
@@ -91,18 +95,56 @@
                     <button class="btn btn-back2" (click)="choosePlan('finRegistro')">Finalizar registro</button>
                 </div>
             </div>
+            -->
         </div>
     </div>
 
     <div class="hamburger-menu" (click)="toggleMenu()">
         &#9776;
     </div>
-
-    <!-- Menú que se despliega en pantallas pequeñas -->
-    <div class="mobile-nav" *ngIf="isMenuOpen">
-        <a routerLink="">Option0</a>
-        <a routerLink="">Option1</a>
-        <a routerLink="">Option2</a>
-        <a routerLink="">Option3</a>
+    <div 
+    class="menu-overlay" 
+    *ngIf="isMenuOpen" 
+    (click)="closeMobileMenu()">
     </div>
+
+
+    <div class="mobile-nav" [class.open]="isMenuOpen">
+        <div class="mobile-links">
+
+            <a (click)="indexActual(i); closeMobileMenu()"  
+            [ngClass]="{'selected': selectedIndex === i}" 
+            [routerLink]="item.ruta" 
+            routerLinkActive="selected"
+            *ngFor="let item of items; let i = index">
+                {{item.title}}
+            </a>
+
+            <a (click)="indexActual(4); closeMobileMenu()" 
+            [ngClass]="{'selected': selectedIndex === 4}" 
+            [routerLink]="'6278ed5s43sf23fevsn82-rdyrw5ym-ad112q-w334r-w2jshgfq2uei8dygw-dshbvacwujfnbwt5'" 
+            routerLinkActive="selected"
+            *ngIf="registerData.isAdmin">
+                {{nameAdmin}}
+            </a>
+        </div>
+
+        <div class="mobile-auth">
+            <button
+                *ngIf="!isLoggedIn"
+                class="btn-login"
+                (click)="toggleLoginForm('login'); closeMobileMenu()">
+                ACCESO
+            </button>
+
+            <button
+                *ngIf="isLoggedIn"
+                class="btn-login"
+                (click)="logout(); closeMobileMenu()">
+                Cerrar sesión
+            </button>
+
+        </div>
+    </div>
+
 </section>

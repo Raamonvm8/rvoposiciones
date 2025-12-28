@@ -41,6 +41,8 @@ export class HeaderComponent {
 
   user: User | null = null;
 
+  isAdmin: boolean = false;
+
   registerData = {
     fullName: '',
     email: '',
@@ -59,6 +61,7 @@ export class HeaderComponent {
 
   items: {title: string, ruta: string}[] = [{title: 'SOBRE RAMÓN', ruta: 'quiénsoy'}, {title: 'MIS LIBROS', ruta: 'libros'}, {title: 'MATERIALES', ruta: 'materiales'}, {title: 'TALLERES', ruta: 'talleres'}];
 
+  nameAdmin: string = 'ADMIN';
   constructor(private http: HttpClient, private authModal: ModalRegisterLoginService) {}
 
   ngOnInit() {
@@ -68,9 +71,34 @@ export class HeaderComponent {
     }
 
     const auth = getAuth();
-    onAuthStateChanged(auth, (user) => {
+
+    onAuthStateChanged(auth, async (user) => {
       this.isLoggedIn = !!user;
+
+      if (user) {
+        try {
+          const token = await user.getIdToken();
+
+          this.http.get<any>('http://localhost:3000/api/me', {
+            headers: { Authorization: `Bearer ${token}` }
+          }).subscribe({
+            next: data => {
+              this.registerData.isAdmin = !!data.isAdmin;
+            },
+            error: () => {
+              this.registerData.isAdmin = false;
+            }
+          });
+
+        } catch (err) {
+          console.error('Error obteniendo token', err);
+          this.registerData.isAdmin = false;
+        }
+      } else {
+        this.registerData.isAdmin = false;
+      }
     });
+
 
     this.authModal.showLoginModal$.subscribe(show => {
       this.muestraLogin = show;
@@ -138,7 +166,6 @@ export class HeaderComponent {
               break;
           }
         }
-        
 
         Swal.fire({
           toast: true,
@@ -212,67 +239,84 @@ export class HeaderComponent {
     
   }
 
-choosePlan(plan: string) {
-  if (!this.registerData.email || !this.registerData.password) {
-    alert('Por favor completa los campos de registro antes de elegir un plan');
-    return;
-  }
+  choosePlan(plan: string) {
+    if (!this.registerData.email || !this.registerData.password) {
+      alert('Por favor completa los campos de registro antes de elegir un plan');
+      return;
+    }
 
-  if (this.registerData.password !== this.registerData.confirmPassword) {
-    alert('Las contraseñas no coinciden');
-    return;
-  }
+    if (this.registerData.password !== this.registerData.confirmPassword) {
+      alert('Las contraseñas no coinciden');
+      return;
+    }
 
-  console.log(`Plan elegido: ${plan}`);
+    this.closeRegisterModal();
 
-  const auth = getAuth();
+    const auth = getAuth();
 
-  // Registro en Firebase
-  createUserWithEmailAndPassword(auth, this.registerData.email, this.registerData.password)
-    .then(async (userCredential) => {
-      const user = userCredential.user;
-      auth.languageCode = 'es';
+    // Registro en Firebase
+    createUserWithEmailAndPassword(auth, this.registerData.email, this.registerData.password)
+      .then(async (userCredential) => {
+        const user = userCredential.user;
+        auth.languageCode = 'es';
 
-      // Enviar email de verificación
-      await sendEmailVerification(user);
-      alert('Se ha enviado un email de verificación. Verifica para iniciar sesión.');
+        // Desactivar temporalmente el login automático
+        this.isLoggedIn = false;
 
-      // Cerrar sesión inmediatamente para que no se loguee automáticamente
-      await signOut(auth);
+        // Enviar email de verificación
+        await sendEmailVerification(user);
 
-      // Preparar datos seguros para enviar al backend (evitar undefined/null)
-      const safeRegisterData = {
-        fullName: this.registerData.fullName || '',
-        email: this.registerData.email || '',
-        cursos: this.registerData.cursos || { primaria: false, PT: false, secundaria: false },
-        materiales: this.registerData.materiales || [],
-        talleres: this.registerData.talleres || [],
-        recursos: this.registerData.recursos ?? false,
-        isAdmin: this.registerData.isAdmin ?? false
-      };
+        // Mostrar Swal de éxito
+        await Swal.fire({
+          icon: 'success',
+          title: 'Registro completo',
+          text: 'Se ha enviado un email de verificación. Verifica tu correo para iniciar sesión.',
+          confirmButtonText: 'Entendido',
+          buttonsStyling: false,
+          customClass: {
+            confirmButton: 'my-confirm-button'
+          }
+        });
 
-      // Obtener token para autorización con Firebase
-      const token = await user.getIdToken();
+        // Cerrar sesión para asegurarnos de que no quede logueado
+        await signOut(auth);
 
-      // Enviar datos al backend
-      this.http.post('http://localhost:3000/api/users', safeRegisterData, {
-        headers: { Authorization: `Bearer ${token}` }
-      }).subscribe({
-        next: () => console.log('Usuario guardado en MySQL'),
-        error: err => console.error('Error guardando en MySQL:', err)
+        // Guardar en backend
+        const safeRegisterData = {
+          fullName: this.registerData.fullName || '',
+          email: this.registerData.email || '',
+          cursos: this.registerData.cursos || { primaria: false, PT: false, secundaria: false },
+          materiales: this.registerData.materiales || [],
+          talleres: this.registerData.talleres || [],
+          recursos: this.registerData.recursos ?? false,
+          isAdmin: this.registerData.isAdmin ?? false
+        };
+        const token = await user.getIdToken();
+
+        this.http.post('http://localhost:3000/api/users', safeRegisterData, {
+          headers: { Authorization: `Bearer ${token}` }
+        }).subscribe({
+          next: () => console.log('Usuario guardado en MySQL'),
+          error: err => console.error('Error guardando en MySQL:', err)
+        });
+
+        // Reiniciar modal y pasos
+        this.registerStep = 1;
+      })
+      .catch((error) => {
+        console.error('Error registrando:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error.message,
+          confirmButtonText: 'Entendido',
+          buttonsStyling: false,
+          customClass: {
+            confirmButton: 'my-confirm-button'
+          }
+        });
       });
-
-      // Cerrar modal y reiniciar pasos
-      this.closeRegisterModal();
-      this.registerStep = 1;
-    })
-    .catch((error) => {
-      console.error('Error registrando:', error);
-      alert(error.message);
-    });
-}
-
-
+  }
   
   goBackToForm() {
     this.registerStep = 1;
@@ -289,6 +333,11 @@ choosePlan(plan: string) {
   contraOlvidada(){
     this.showContraOlvidada = true;
   }
+
+  closeMobileMenu() {
+    this.isMenuOpen = false;
+  }
+
   changePass(): void{
     sendPasswordResetEmail(auth, this.emailOlvidado)
     .then(() => {
@@ -313,7 +362,5 @@ choosePlan(plan: string) {
   
 
 }
-function gradient(arg0: number, deg: any, arg2: any, arg3: number, d64: any, arg5: any, arg6: number, f: any) {
-  throw new Error('Function not implemented.');
-}
+
 
