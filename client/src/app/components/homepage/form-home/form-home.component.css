@@ -85,3 +85,12 @@
   font-size: 0.85rem;
   color: #d1d5db;
 }
+
+@media (max-width: 768px) {
+  .hero-container {
+    
+    margin: 80px 40px;
+    
+  }
+
+}
