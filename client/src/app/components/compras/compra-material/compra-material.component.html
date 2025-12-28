@@ -35,19 +35,35 @@
     </div>
   </div>
 
-  <h2>Añadir materiales</h2>
-  <div class="materiales-list">
-    <div class="material-card" *ngFor="let m of materiales">
-      <img [src]="m.img" alt="{{ m.titulo }}">
-      <h3>{{ m.titulo }}</h3>
-      <p>{{ m.price }} €</p>
-      <button (click)="addToCart(m)" [disabled]="isInCart(m.uuid)">
-        Añadir al carrito
-      </button>
+  <!-- Overlay -->
+  <div class="overlay" [class.active]="showPaymentOverlay"></div>
+
+  <!-- Payment modal -->
+  <div class="payment-modal" [class.active]="showPaymentOverlay">
+    <form id="payment-form">
+      <h3>Total a pagar: {{ totalCarritoFormatted }} €</h3>
+      <div id="payment-element"></div>
+      <button type="submit" class="btn-pay-now">Pagar ahora</button>
+      <button type="button" class="btn-cancel" (click)="closePayment()">Cancelar</button>
+    </form>
+  </div>
+
+  <div *ngIf="materiales.length > 0">
+    <h2>Añadir materiales</h2>
+    <div class="materiales-list">
+      <div class="material-card" *ngFor="let m of materiales">
+        <img [src]="m.img" alt="{{ m.titulo }}">
+        <h3>{{ m.titulo }}</h3>
+        <p>{{ m.price }} €</p>
+        <button (click)="addToCart(m)" [disabled]="isInCart(m.uuid)">
+          Añadir al carrito
+        </button>
+      </div>
     </div>
   </div>
 
-  <h2>Añadir talleres</h2>
+  <div *ngIf="talleres.length > 0">
+    <h2>Añadir talleres</h2>
     <div class="materiales-list">
         <div class="material-card taller" *ngFor="let t of talleres">
             <img [src]="t.img">
@@ -58,4 +74,5 @@
             </button>
         </div>
     </div>
+  </div>
 </div>

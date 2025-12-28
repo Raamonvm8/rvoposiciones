@@ -4,15 +4,18 @@ import { Component, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { CartService } from '../../../services/cart.service';
+import { loadStripe } from '@stripe/stripe-js';
 
-
+const stripePromise = loadStripe('pk_test_51Shwm0FCj2WzHHfTLP0F89gyNtCAPslee4eS6V1ltHYWjRr3WMsR70xzOXIlswhHOTyFhJyu0mCba7kTzpOiunlX00oflX1RJz');
 @Component({
   selector: 'app-compra-material',
   standalone: true,
-  imports: [NgFor],
+  imports: [NgFor, NgIf],
   templateUrl: './compra-material.component.html',
   styleUrl: './compra-material.component.css'
 })
+
+
 export class CompraMaterialComponent {
 
   carrito: any[] = [];
@@ -23,6 +26,8 @@ export class CompraMaterialComponent {
   userData: any = null;
   user: User | null = null;
   showSticky: boolean = false;
+
+  showPaymentOverlay = false;
 
   @HostListener('window:scroll', [])
   onWindowScroll() {
@@ -112,12 +117,70 @@ export class CompraMaterialComponent {
     return this.cartService.getTotal();
   }
 
-  goToCheckout() {
-    alert('✅ Compra simulada correctamente. (Integrar Stripe después)');
-    this.cartService.clearCart();
-    this.router.navigate(['/materiales']);
+  async goToCheckout() {
+    this.showPaymentOverlay = true;
+    if (!this.user) {
+      alert('Debes iniciar sesión para comprar');
+      return;
+    }
+
+    const items = this.cartService.getCart();
+
+    if (!items.length) {
+      alert('El carrito está vacío');
+      return;
+    }
+
+    try {
+      // 1️⃣ Llamada a backend para crear PaymentIntent
+      const res: any = await this.http
+        .post('http://localhost:3000/api/create-payment-intent', { items, uid: this.user.uid })
+        .toPromise();
+
+      const clientSecret = res.clientSecret;
+
+      // 2️⃣ Inicializar Stripe
+      const stripe = await stripePromise;
+      if (!stripe) throw new Error('Stripe no se cargó correctamente');
+
+      // 3️⃣ Crear Payment Element
+      const elements = stripe.elements({ clientSecret });
+      const paymentElement = elements.create('payment');
+      paymentElement.mount('#payment-element'); // #payment-element debe existir en tu template
+
+      // 4️⃣ Confirmar pago al hacer submit
+      const form = document.getElementById('payment-form') as HTMLFormElement;
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const { error, paymentIntent } = await stripe.confirmPayment({
+          elements,
+          confirmParams: {
+            return_url: window.location.href, 
+          },
+          redirect: 'if_required',
+        });
+
+        if (error) {
+          alert(`Error en el pago: ${error.message}`);
+        } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+          alert('Pago completado con éxito');
+          this.cartService.clearCart();
+          // Actualiza UI, recarga materiales/talleres comprados
+          this.loadMateriales();
+          this.loadTalleres();
+          this.showPaymentOverlay = false;
+        }
+      });
+    } catch (err: any) {
+      console.error('Error en checkout:', err);
+      alert('Error iniciando el pago');
+    }
   }
 
+  closePayment(){
+    this.showPaymentOverlay = false;
+  }
 
   get totalCarritoFormatted(): string {
     return this.totalCarrito.toFixed(2);
