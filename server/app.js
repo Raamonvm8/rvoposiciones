@@ -9,13 +9,14 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 
-
-
 require('dotenv').config({ path: './config/.env' }); 
-
 
 const app = express();
 const port = 3000;
+
+//STRIPE
+const Stripe = require('stripe');
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const mysql = require('mysql2/promise');
 
@@ -27,7 +28,6 @@ const db = mysql.createPool({
   database: process.env.DB_NAME,
   port: 8889 //cambiar en produccion (creo que 3306)
 });
-
 
 const uploadDir = path.join(__dirname, 'uploads', 'materiales');
 
@@ -63,6 +63,62 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 
+app.post(
+  '/api/stripe-webhook',
+  express.raw({ type: 'application/json' }),
+  async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(
+        req.body,
+        sig,
+        process.env.STRIPE_WEBHOOK_SECRET
+      );
+    } catch (err) {
+      console.error('Webhook error:', err.message);
+      return res.status(400).send(`Webhook Error`);
+    }
+
+    // ✅ Pago completado
+    if (event.type === 'payment_intent.succeeded') {
+      const paymentIntent = event.data.object;
+
+      const uid = paymentIntent.metadata.uid;
+      const items = JSON.parse(paymentIntent.metadata.items);
+
+      try {
+        const [rows] = await db.query('SELECT materiales, talleres FROM usuarios WHERE uid = ?', [uid]);
+        if (!rows.length) return;
+
+        const normalizeArray = (value) => Array.isArray(value) ? value : JSON.parse(value || '[]');
+
+        let materiales = normalizeArray(rows[0].materiales);
+        let talleres = normalizeArray(rows[0].talleres);
+
+        for (const item of items) {
+          if (item.type === 'material' && !materiales.includes(item.uuid)) materiales.push(item.uuid);
+          if (item.type === 'taller' && !talleres.includes(item.uuid)) talleres.push(item.uuid);
+        }
+
+        await db.query(
+          'UPDATE usuarios SET materiales = ?, talleres = ? WHERE uid = ?',
+          [JSON.stringify(materiales), JSON.stringify(talleres), uid]
+        );
+
+        console.log(`✅ Usuario ${uid} actualizado con materiales/talleres comprados`);
+
+      } catch (err) {
+        console.error('❌ Error actualizando usuario desde webhook:', err);
+      }
+    }
+
+
+    res.json({ received: true });
+  }
+);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -187,6 +243,25 @@ app.get('/api/users/:uid', async (req, res) => {
   }
 });
 
+app.get('/api/me', verifyFirebaseToken, async (req, res) => {
+  try {
+    const uid = req.user.uid;
+
+    const [rows] = await db.query(
+      'SELECT email, fullName, materiales, talleres, isAdmin FROM usuarios WHERE uid = ?',
+      [uid]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('Error en /api/me:', err);
+    res.status(500).json({ message: 'Error obteniendo usuario' });
+  }
+});
 
 
 // Eliminar usuario
@@ -606,8 +681,8 @@ app.post('/api/talleres', async (req, res) => {
   try {
     const uuid = crypto.randomUUID();
     const [result] = await db.query(
-      'INSERT INTO talleres_a_la_venta (uuid, titulo, descripcion, img, price, visible) VALUES (?, ?, ?, ?, ?, ?)',
-      [uuid, req.body.titulo, req.body.descripcion, req.body.img, req.body.price, req.body.visible]
+      'INSERT INTO talleres_a_la_venta (uuid, titulo, descripcion, img, price, visible, fecha) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [uuid, req.body.titulo, req.body.descripcion, req.body.img, req.body.price, req.body.visible, req.body.fecha]
     );
 
     res.json({
@@ -624,7 +699,7 @@ app.post('/api/talleres', async (req, res) => {
 // Actualizar un taller
 app.put('/api/talleres/:id', async (req, res) => {
   try {
-    const { titulo, descripcion, img, price, visible } = req.body;
+    const { titulo, descripcion, img, price, visible, fecha } = req.body;
     const fields = [];
     const values = [];
 
@@ -633,6 +708,7 @@ app.put('/api/talleres/:id', async (req, res) => {
     if (img !== undefined) { fields.push('img=?'); values.push(img); }
     if (price !== undefined) { fields.push('price=?'); values.push(price); }
     if (visible !== undefined) { fields.push('visible=?'); values.push(visible); }
+    if (fecha !== undefined) { fields.push('fecha=?'); values.push(fecha); } // <--- Agregar fecha
 
     if (fields.length === 0) return res.status(400).json({ error: 'No hay campos para actualizar' });
 
@@ -645,6 +721,7 @@ app.put('/api/talleres/:id', async (req, res) => {
     res.status(500).json({ message: 'Error actualizando taller', error: err });
   }
 });
+
 
 // Eliminar un taller
 app.delete('/api/talleres/:id', async (req, res) => {
@@ -778,6 +855,269 @@ app.delete('/api/archivo/talleres/:id', async (req, res) => {
     res.status(500).json({ message: 'Error eliminando archivo', error: err });
   }
 });
+
+app.post('/api/pagando', async (req, res) => {
+  try {
+    const { uid, items } = req.body;
+
+    if (!uid || !Array.isArray(items)) {
+      return res.status(400).json({ error: 'Datos incompletos' });
+    }
+
+    // 1️⃣ Obtener usuario
+    const [rows] = await db.query(
+      'SELECT materiales, talleres FROM usuarios WHERE uid = ?',
+      [uid]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    // ✅ PARSEO CORRECTO (string | array | null)
+    const normalizeArray = (value) => {
+      if (Array.isArray(value)) return value;
+      if (!value) return [];
+      try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    };
+
+    let materiales = normalizeArray(rows[0].materiales);
+    let talleres   = normalizeArray(rows[0].talleres);
+
+    // 2️⃣ Añadir nuevas compras SIN borrar nada
+    for (const item of items) {
+      if (item.type === 'material' && !materiales.includes(item.uuid)) {
+        materiales.push(item.uuid);
+      }
+
+      if (item.type === 'taller' && !talleres.includes(item.uuid)) {
+        talleres.push(item.uuid);
+      }
+    }
+
+    // 3️⃣ Guardar
+    await db.query(
+      'UPDATE usuarios SET materiales = ?, talleres = ? WHERE uid = ?',
+      [
+        JSON.stringify(materiales),
+        JSON.stringify(talleres),
+        uid
+      ]
+    );
+
+    res.json({
+      ok: true,
+      materiales,
+      talleres
+    });
+
+  } catch (err) {
+    console.error('❌ Error en /api/pagando:', err);
+    res.status(500).json({ error: 'Error procesando el pago' });
+  }
+});
+
+//Pagos Stripe
+app.post('/api/create-payment-intent', async (req, res) => {
+  try {
+    const { items, uid } = req.body;
+
+    const amount = items.reduce(
+      (sum, item) => sum + Math.round(item.price * 100),
+      0
+    );
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency: 'eur',
+      payment_method_types: ['card'],
+      metadata: {
+        uid,
+        items: JSON.stringify(items.map(i => ({
+          uuid: i.uuid,
+          type: i.type
+        })))
+      }
+    });
+
+    res.json({ clientSecret: paymentIntent.client_secret });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error creando pago' });
+  }
+});
+
+//Admin Panel dar acceso o revokar en talleres
+
+// Dar acceso a un taller
+app.post('/admin/talleres/:uuid/grant', async (req, res) => {
+  const { uuid } = req.params;
+  const { email } = req.body;
+
+  try {
+    const [rows] = await db.query(
+      'SELECT talleres FROM usuarios WHERE email = ?',
+      [email]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    let talleresRaw = rows[0].talleres;
+    let talleres = [];
+
+    if (Array.isArray(talleresRaw)) {
+      talleres = talleresRaw;
+    } else if (typeof talleresRaw === 'string' && talleresRaw.trim() !== '') {
+      try {
+        const parsed = JSON.parse(talleresRaw);
+        if (Array.isArray(parsed)) {
+          talleres = parsed;
+        } else {
+          talleres = [parsed];
+        }
+      } catch {
+        talleres = [talleresRaw];
+      }
+    }
+
+    if (!talleres.includes(uuid)) {
+      talleres.push(uuid);
+    }
+
+    await db.query(
+      'UPDATE usuarios SET talleres = ? WHERE email = ?',
+      [JSON.stringify(talleres), email]
+    );
+
+    res.json({
+      message: 'Acceso concedido',
+      talleres
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error otorgando acceso' });
+  }
+});
+
+
+// Quitar acceso a un taller
+app.post('/admin/talleres/:tallerId/revoke', async (req, res) => {
+  const { email } = req.body;
+  const { tallerId } = req.params;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email es obligatorio' });
+  }
+
+  try {
+    const [rows] = await db.query(
+      'SELECT talleres FROM usuarios WHERE email = ?',
+      [email]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    let talleresRaw = rows[0].talleres;
+    let talleres = [];
+
+    if (Array.isArray(talleresRaw)) {
+      talleres = talleresRaw;
+    } else if (typeof talleresRaw === 'string' && talleresRaw.trim() !== '') {
+      try {
+        const parsed = JSON.parse(talleresRaw);
+        if (Array.isArray(parsed)) {
+          talleres = parsed;
+        } else {
+          talleres = [parsed];
+        }
+      } catch {
+        talleres = [talleresRaw];
+      }
+    }
+
+    // 🔥 Eliminar el taller
+    const nuevosTalleres = talleres.filter(t => t !== tallerId);
+
+    // Guardar solo si hubo cambio
+    if (nuevosTalleres.length !== talleres.length) {
+      await db.query(
+        'UPDATE usuarios SET talleres = ? WHERE email = ?',
+        [JSON.stringify(nuevosTalleres), email]
+      );
+    }
+
+    res.json({ ok: true, talleres: nuevosTalleres });
+
+  } catch (err) {
+    console.error('Error en revokeAccess:', err);
+    res.status(500).json({
+      message: 'Error quitando acceso',
+      error: err
+    });
+  }
+});
+
+function normalizeTalleres(raw) {
+  if (!raw) return [];
+
+  if (Array.isArray(raw)) return raw;
+
+  if (typeof raw === 'string') {
+    const trimmed = raw.trim();
+    if (!trimmed) return [];
+
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) return parsed;
+      return [parsed];
+    } catch {
+      return [trimmed];
+    }
+  }
+
+  return [];
+}
+
+app.get('/admin/talleres', async (req, res) => {
+  try {
+    const [talleres] = await db.query('SELECT * FROM talleres_a_la_venta');
+    const [usuarios] = await db.query('SELECT * FROM usuarios');
+
+    for (const taller of talleres) {
+      taller.usuarios = [];
+
+      for (const u of usuarios) {
+        const userTalleres = normalizeTalleres(u.talleres);
+
+        if (userTalleres.includes(taller.uuid)) {
+          taller.usuarios.push({
+            email: u.email,
+            fullName: u.fullName,
+            hasAccess: true
+          });
+        }
+      }
+    }
+
+    res.json(talleres);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: 'Error obteniendo talleres con usuarios',
+      error: err
+    });
+  }
+});
+
 
 // Iniciar servidor
 app.listen(port, () => {
