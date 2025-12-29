@@ -200,6 +200,9 @@ button[disabled] {
   z-index: 1001;
   width: 400px;
   max-width: 90%;
+
+  max-height: 80vh;
+  overflow-y: auto;   
 }
 
 .payment-modal.active {

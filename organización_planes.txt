@@ -37,14 +37,14 @@ desde la BD. Y arreglar quitar accesos.
     6. ✅talleres
     7. ✅Login
     8. ✅carrito
-- En el pago desplegable stripe no se ve el pagar Ya boton.
+✅En el pago desplegable stripe no se ve el pagar Ya boton.
+✅ Poner links clickables en las secciones de talleres que han pagado para google meet. (preguntar si factible)
 - Avisar tanto en materiales como talleres el funcionamiento al pagar.
-- Linkedin para footer.
+✅ Linkedin para footer.
 - Ante cualquier incidencia de talleres, link a whatsapp o form de contacto.
 - Media queris para pantallas largas se queda estrecho en 'sobre ramon' y en talleres/materiales 
 hacer la cantidad segun espacio en la pantalla no solo 3x3
-- Contraseña robusta.
-- Poner links clickables en las secciones de talleres que han pagado para google meet. (preguntar si factible)
+✅ Contraseña robusta.
 ✅ Verificacion del corrreo mas vistosa.
 ✅ Ocultar botones de acceso al curso.
 ✅ Ocultar al crear cuenta lo de elegir pagos.
@@ -54,8 +54,11 @@ hacer la cantidad segun espacio en la pantalla no solo 3x3
 3. Edición 48h. Respuesta admin. Moderación.
 - NO eliminar talleres cuando finalizan, mejor ocultar, hasta un maximo de días que tengan acceso a recursos
 de ese taller. Así tienen visibles los recursos de ese taller.
+✅ Cookies
 - Seguridad:
-    1. Admin panel solo acceso a admin.
+    1. ✅Admin panel solo acceso a admin.
+    2. Actualizar dependencias a menudo para prevenir.
+    3. copia de seguridad en la base de datos.
 - Hacer sección recursos pagina que me dijo el dad
 - Crear sección curso, bastante completa.
 ✅ Añadir los correos que se registran a la web tambien a recolecta_correos
@@ -72,7 +75,6 @@ CUANDO SE PUBLIQUE CURSOS:
 
 IMPORTANTE PARA PRODUCCION:
 - En backend app.js DB_PORT, PORT y URL del backend meterlos en .env
-- Admin-panel hacerlo con contraseña
 
 
 FUTURE IMPLEMENTATIONS:
