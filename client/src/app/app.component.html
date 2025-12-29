@@ -1,5 +1,24 @@
 <app-header />
 <main>
+  <div class="cookie-banner" *ngIf="!cookiesDecision">
+    <div class="cookie-content">
+      <div class="cookie-logo">
+        <img src="../favicon.ico" alt="Logo" />
+      </div>
+      <div class="cookie-text">
+        <p>
+          Aviso de privacidad. Usamos cookies para mejorar tu experiencia.
+          <br><span class="emoji">🍪</span> Puedes aceptar todas las cookies o rechazarlas. Si seleccionas Rechazar todas las cookies o retiras tu consentimiento, los deshabilitarás. Si se deshabilitan los rastreadores, parte del contenido y los anuncios que ves podrían dejar de ser relevantes para ti.
+        </p>
+        <div class="cookie-buttons">
+          <button class="accept-btn" (click)="acceptCookies()">Aceptar y continuar</button>
+          <button class="reject-btn" (click)="rejectCookies()">Rechazar cookies</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <router-outlet></router-outlet>
 </main>
 <app-footer />
+
+
