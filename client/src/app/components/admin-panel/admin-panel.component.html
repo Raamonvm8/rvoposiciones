@@ -1,4 +1,7 @@
-<div class="admin-panel">
+<div *ngIf="!isAdmin">
+  <p>No tienes permisos para acceder a esta sección.</p>
+</div>
+<div *ngIf="isAdmin" class="admin-panel">
   <h2>Usuarios registrados</h2>
     <input type="text" placeholder="Buscar por nombre..." [(ngModel)]="searchName" class="search-input">
 

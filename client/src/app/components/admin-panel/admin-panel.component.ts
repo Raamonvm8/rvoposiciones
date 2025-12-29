@@ -6,6 +6,7 @@ import { DatePipe } from '@angular/common';
 import { deleteDoc, doc, getDoc } from 'firebase/firestore';
 import { auth, DB } from '../../../environments/environment';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 @Component({
   selector: 'app-admin-panel',
@@ -22,36 +23,27 @@ export class AdminPanelComponent {
   sortColumn: string = '';
   sortDirection: 'asc' | 'desc' = 'asc';
   searchName: string = '';
+  isAdmin: boolean = false;
+  user: any = null;
 
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.loadData();
-    // Traer usuarios
-    this.http.get<any[]>('http://localhost:3000/admin/users')
-      .subscribe(users => {
-        this.users = users.map(u => ({
-          ...u,
-          talleres: Array.isArray(u.talleres) ? u.talleres : JSON.parse(u.talleres || '[]')
-        }));
-
-        // Traer talleres
-        this.http.get<any[]>('http://localhost:3000/admin/talleres')
-          .subscribe(talleres => {
-            // Para cada taller, agregar la lista de usuarios con hasAccess
-            this.talleres = talleres.map(t => ({
-              ...t,
-              usuarios: this.users
-                .filter(u => u.talleres.includes(t.uuid)) // solo usuarios que han pagado
-                .map(u => ({
-                  email: u.email,
-                  fullName: u.fullName,
-                  hasAccess: true // porque ya lo han pagado
-                }))
-            }));
-
+    // Revisar si el usuario está logueado
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+      this.user = user;
+      if (user) {
+        // Obtener info del usuario
+        this.http.get(`http://localhost:3000/api/users/${user.uid}`)
+          .subscribe((res: any) => {
+            this.isAdmin = !!res.isAdmin;
           });
-      });
+      }
+    });
+
+    // Aquí puedes mantener tus llamadas actuales a loadData()
+    this.loadData();
   }
 
   loadData() {
