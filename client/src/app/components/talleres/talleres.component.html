@@ -5,12 +5,12 @@
   <ng-container *ngFor="let recurso of recursos; let i = index">
     
     <!-- Mostrar siempre para admin, o según permisos -->
-    <form *ngIf="isAdmin || !recurso.material_type || userData?.talleres?.includes(recurso.material_type)"
+    <form (click)="toggleRecurso(recurso)" *ngIf="isAdmin || !recurso.material_type || userData?.talleres?.includes(recurso.material_type)"
       (ngSubmit)="onUpload(recurso)" enctype="multipart/form-data">
 
 
       <div class="recurso-header">
-        <span (click)="toggleRecurso(recurso)" class="toggle-icon">
+        <span class="toggle-icon" [class.open]="recurso.isExpanded">
           {{ recurso.isExpanded ? '▼' : '▶' }}
         </span>
 
@@ -32,7 +32,43 @@
         </h2>
       </div>
 
-        <div *ngIf="recurso.isExpanded" class="recursos-display">
+        <div [class.open]="recurso.isExpanded" class="recursos-display">
+            <div class="links-section" *ngIf="isAdmin || (recurso.links && recurso.links.length > 0)">
+
+                <h4 class="section-title">Enlaces del taller:</h4>
+
+                <div *ngFor="let link of recurso.links" class="link-item">
+                    <i class="fa fa-link"></i>
+                    <a [href]="link.url" target="_blank">{{ link.title }}</a>
+
+                    <i *ngIf="isAdmin"
+                    class="fa fa-trash delete-link"
+                    (click)="deleteLink(recurso, link)">
+                    </i>
+                </div>
+
+                <div *ngIf="isAdmin" class="add-link-form">
+                    <input
+                    type="text"
+                        placeholder="Nombre del enlace"
+                        [(ngModel)]="recurso.newLinkTitle"
+                        [ngModelOptions]="{ standalone: true }"
+                    />
+
+                    <input
+                        type="url"
+                        placeholder="https://meet.google.com/..."
+                        [(ngModel)]="recurso.newLinkUrl"
+                        [ngModelOptions]="{ standalone: true }"
+                    />
+
+                    <button type="button" (click)="addLink(recurso)">
+                    Añadir enlace
+                    </button>
+                </div>
+
+            </div>
+
             <div class="file-upload-container" *ngIf="isAdmin">
                 <div class="file-upload">
                     <label class="file-label">

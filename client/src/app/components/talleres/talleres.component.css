@@ -33,9 +33,27 @@ form {
     align-items: start;
     padding: 20px;
     gap: 10px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 1px 2px 6px black;
+
+    background: linear-gradient(
+      180deg,
+      #ffffff 0%,
+      #f4f6fb 100%
+    );
+
+    border-radius: 14px;
+
+    box-shadow:
+      0 8px 20px rgba(4, 45, 100, 0.12),
+      0 2px 6px rgba(0, 0, 0, 0.05);
+
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+form:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 12px 28px rgba(4, 45, 100, 0.18),
+      0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
 form button {
@@ -270,11 +288,22 @@ form button:hover{
 }
 
 .recursos-display {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 95%;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: 
+    max-height 0.6s ease,
+    opacity 0.4s ease,
+    transform 0.4s ease;
 }
+
+.recursos-display.open {
+  max-height: 2000px; /* suficientemente grande */
+  opacity: 1;
+  transform: translateY(0);
+}
+
 
 .edition-separate {
     display: flex;
@@ -723,6 +752,71 @@ form button:hover{
   color: #c62828;
   font-size: 0.9rem;
   margin-top: 10px;
+}
+
+.links-section {
+  width: 100%;
+  padding: 10px 0;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #042d64;
+  margin-bottom: 8px;
+}
+
+.link-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+}
+
+.link-item i.fa-link {
+  color: #ad9551;
+}
+
+.link-item a {
+  color: #042d64;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link-item a:hover {
+  text-decoration: underline;
+}
+
+.delete-link {
+  margin-left: auto;
+  color: #c62828;
+  cursor: pointer;
+}
+
+.add-link-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.add-link-form input {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.add-link-form button {
+  background-color: #042d64;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.add-link-form button:hover {
+  background-color: #06408f;
 }
 
 /* Responsive para pantallas pequeñas */

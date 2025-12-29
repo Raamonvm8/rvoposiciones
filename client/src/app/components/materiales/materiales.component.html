@@ -4,12 +4,12 @@
   <ng-container *ngFor="let recurso of recursos; let i = index">
     
     <!-- Mostrar siempre para admin -->
-    <form *ngIf="isAdmin || !recurso.material_type || userData?.materiales?.includes(recurso.material_type)"
+    <form (click)="toggleRecurso(recurso)" *ngIf="isAdmin || !recurso.material_type || userData?.materiales?.includes(recurso.material_type)"
       (ngSubmit)="onUpload(recurso)" enctype="multipart/form-data">
 
 
       <div class="recurso-header">
-        <span (click)="toggleRecurso(recurso)" class="toggle-icon">
+        <span class="toggle-icon" [class.open]="recurso.isExpanded">
           {{ recurso.isExpanded ? '▼' : '▶' }}
         </span>
 
@@ -31,7 +31,7 @@
         </h2>
       </div>
 
-        <div *ngIf="recurso.isExpanded" class="recursos-display">
+        <div [class.open]="recurso.isExpanded" class="recursos-display">
             <div class="file-upload-container" *ngIf="isAdmin">
                 <div class="file-upload">
                     <label class="file-label">

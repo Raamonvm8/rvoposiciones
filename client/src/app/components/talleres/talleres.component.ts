@@ -26,9 +26,18 @@ interface Recurso {
   isEditing: boolean;
   isExpanded: boolean;
   archivos: UploadedFile[];
+  links?: RecursoLink[];
+  newLinkTitle?: string;
+  newLinkUrl?: string;
   material_type: string | null;
   selectedFile?: File;
   selectedFileName?: string;
+}
+
+interface RecursoLink {
+  id?: number;
+  title: string;
+  url: string;
 }
 
 @Component({
@@ -165,9 +174,16 @@ export class TalleresComponent implements OnInit{
               filename: f.file_name,
               url: f.url,
               extension: f.extension
-            }))
+            })),
+            links: (r.links || []).map((l: any) => ({
+              id: l.id,
+              title: l.title,
+              url: l.url
+            })),
+            newLinkTitle: '',
+            newLinkUrl: ''
           }));
-  
+
       }, error => console.error('Error cargando recursos:', error));
     }
   
@@ -604,4 +620,36 @@ export class TalleresComponent implements OnInit{
         }
       });
     }
+
+    addLink(recurso: Recurso) {
+      if (!recurso.newLinkTitle || !recurso.newLinkUrl) return;
+
+      this.http.post(
+        `http://localhost:3000/api/recurso/talleres/${recurso.id}/link`,
+        {
+          title: recurso.newLinkTitle,
+          url: recurso.newLinkUrl
+        }
+      ).subscribe({
+        next: (res: any) => {
+          if (!recurso.links) recurso.links = [];
+          recurso.links.push(res.link);
+
+          recurso.newLinkTitle = '';
+          recurso.newLinkUrl = '';
+        },
+        error: err => console.error('Error creando link:', err)
+      });
+    }
+
+    deleteLink(recurso: Recurso, link: RecursoLink) {
+      if (!confirm('¿Eliminar este enlace?')) return;
+
+      this.http.delete(
+        `http://localhost:3000/api/recurso/talleres/link/${link.id}`
+      ).subscribe(() => {
+        recurso.links = recurso.links?.filter(l => l.id !== link.id);
+      });
+    }
+
 }
