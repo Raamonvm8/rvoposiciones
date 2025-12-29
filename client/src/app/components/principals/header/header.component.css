@@ -149,6 +149,38 @@ nav a.selected {
   z-index: 900;
 }
 
+.password-strength {
+  margin-top: 5px;
+  font-size: 0.9rem;
+}
+
+.strength-bar {
+  height: 6px;
+  background: #ddd;
+  border-radius: 3px;
+  width: 100%;
+  margin-bottom: 3px;
+  overflow: hidden;
+}
+
+.strength-fill {
+  height: 100%;
+  background: red;
+  width: 0%;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.strength-label {
+  font-weight: bold;
+  color: #333;
+}
+
+.strength-fill[style*="width: 25%"] { background: red; }
+.strength-fill[style*="width: 50%"] { background: orange; }
+.strength-fill[style*="width: 75%"] { background: yellowgreen; }
+.strength-fill[style*="width: 100%"] { background: green; }
+
+
 @keyframes fadeIn { from {opacity: 0; transform: scale(0.95);} to {opacity: 1; transform: scale(1);} }
 
 @media (max-width: 1024px) {

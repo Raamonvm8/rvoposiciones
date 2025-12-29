@@ -7,7 +7,7 @@
         <a (click)="indexActual(i)" [ngClass]="{'selected': selectedIndex === i}" [routerLink]="item.ruta" *ngFor="let item of items ; let i = index">
             {{item.title}}
         </a>
-        <a (click)="indexActual(4)" [ngClass]="{'selected': selectedIndex === 4}" [routerLink]="'6278ed5s43sf23fevsn82-rdyrw5ym-ad112q-w334r-w2jshgfq2uei8dygw-dshbvacwujfnbwt5'" *ngIf="registerData.isAdmin">
+        <a (click)="indexActual(4)" [ngClass]="{'selected': selectedIndex === 4}" [routerLink]="'admin-panel'" *ngIf="registerData.isAdmin">
             {{nameAdmin}}
         </a>
         
@@ -58,13 +58,26 @@
 
             <!-- Paso 1: Formulario de registro -->
             <div *ngIf="registerStep === 1" class="tab-content">
-                <form (ngSubmit)="goToPlans()">
+                <form >
                     <input type="text" placeholder="Nombre completo" [(ngModel)]="registerData.fullName" name="fullName" required>
                     <input type="email" placeholder="Correo electrónico" [(ngModel)]="registerData.email" name="email" required>
-                    <input type="password" placeholder="Contraseña" [(ngModel)]="registerData.password" name="password" required>
+                    <input 
+                        type="password" 
+                        placeholder="Contraseña" 
+                        [(ngModel)]="registerData.password" 
+                        name="password" 
+                        required
+                        (input)="checkPasswordStrength(registerData.password)"
+                    >         
                     <input type="password" placeholder="Repite la contraseña" [(ngModel)]="registerData.confirmPassword" name="confirmPassword" required>
 
-                    <button (click)="choosePlan('finRegistro')" class="btn btn-register">Finalizar registro</button>
+                    <div class="password-strength" *ngIf="registerData.password">
+                    <div class="strength-bar">
+                        <div class="strength-fill" [ngStyle]="{'width': (passwordStrength * 25) + '%'}"></div>
+                    </div>
+                    <span class="strength-label">{{ passwordStrengthLabel }}</span>
+                    </div>
+                    <button type="button" (click)="choosePlan('finRegistro')" class="btn btn-register">Finalizar registro</button>
                 </form>
             </div>
 

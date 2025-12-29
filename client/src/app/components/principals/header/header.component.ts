@@ -1,5 +1,5 @@
 import { Component, NgModule } from '@angular/core';
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { NgClass, NgFor, NgIf, NgStyle } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
 import { RouterLink } from '@angular/router';
 import { createUserWithEmailAndPassword, getAuth, onAuthStateChanged, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
@@ -11,7 +11,7 @@ import Swal from 'sweetalert2';
 @Component({
     selector: 'app-header',
     standalone:true,
-    imports: [NgIf, FormsModule, RouterLink, NgClass, NgFor],
+    imports: [NgIf, FormsModule, RouterLink, NgClass, NgFor, NgStyle],
     templateUrl: './header.component.html',
     styleUrl: './header.component.css'
 })
@@ -35,6 +35,9 @@ export class HeaderComponent {
   user: User | null = null;
 
   isAdmin: boolean = false;
+
+  passwordStrength: number = 0; 
+  passwordStrengthLabel: string = '';
 
   registerData = {
     fullName: '',
@@ -232,47 +235,57 @@ export class HeaderComponent {
 
   choosePlan(plan: string) {
     if (!this.registerData.email || !this.registerData.password) {
-      alert('Por favor completa los campos de registro antes de elegir un plan');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Por favor completa los campos de registro antes de elegir un plan.'
+      });
       return;
     }
 
+    const pwdCheck = this.validatePassword(this.registerData.password);
+    if (!pwdCheck.valid) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Contraseña débil',
+        text: pwdCheck.message,
+        customClass: { confirmButton: 'my-confirm-button' }
+
+      });
+      return; 
+    }
+
     if (this.registerData.password !== this.registerData.confirmPassword) {
-      alert('Las contraseñas no coinciden');
-      return;
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Las contraseñas no coinciden'
+      });
+      return; 
     }
 
     this.closeRegisterModal();
 
     const auth = getAuth();
-
-    // Registro en Firebase
     createUserWithEmailAndPassword(auth, this.registerData.email, this.registerData.password)
       .then(async (userCredential) => {
         const user = userCredential.user;
         auth.languageCode = 'es';
 
-        // Desactivar temporalmente el login automático
         this.isLoggedIn = false;
-
-        // Enviar email de verificación
         await sendEmailVerification(user);
 
-        // Mostrar Swal de éxito
         await Swal.fire({
           icon: 'success',
           title: 'Registro completo',
           text: 'Se ha enviado un email de verificación. Verifica tu correo para iniciar sesión.',
           confirmButtonText: 'Entendido',
           buttonsStyling: false,
-          customClass: {
-            confirmButton: 'my-confirm-button'
-          }
+          customClass: { confirmButton: 'my-confirm-button' }
         });
 
-        // Cerrar sesión para asegurarnos de que no quede logueado
         await signOut(auth);
 
-        // Guardar en backend
         const safeRegisterData = {
           fullName: this.registerData.fullName || '',
           email: this.registerData.email || '',
@@ -291,7 +304,6 @@ export class HeaderComponent {
           error: err => console.error('Error guardando en MySQL:', err)
         });
 
-        // Reiniciar modal y pasos
         this.registerStep = 1;
       })
       .catch((error) => {
@@ -302,12 +314,11 @@ export class HeaderComponent {
           text: error.message,
           confirmButtonText: 'Entendido',
           buttonsStyling: false,
-          customClass: {
-            confirmButton: 'my-confirm-button'
-          }
+          customClass: { confirmButton: 'my-confirm-button' }
         });
       });
   }
+
   
   goBackToForm() {
     this.registerStep = 1;
@@ -350,5 +361,57 @@ export class HeaderComponent {
   closeModalPass(){
     this.showContraOlvidada = false;
   }
-  
+
+  validatePassword(password: string): { valid: boolean, message?: string } {
+    if (!password) return { valid: false, message: 'La contraseña no puede estar vacía' };
+    if (password.length < 8 && !/[A-Z]/.test(password) && !/[a-z]/.test(password) && !/[0-9]/.test(password)) return { valid: false, message: 'La contraseña debe tener al menos 8 caracteres, 1 número, 1 letra minúscula y 1 letra mayúscula' };
+    if (password.length < 8 && !/[A-Z]/.test(password) && !/[a-z]/.test(password)) return { valid: false, message: 'La contraseña debe tener al menos 8 caracteres, 1 letra minúscula y 1 letra mayúscula' };
+    if (password.length < 8 && !/[A-Z]/.test(password) && !/[0-9]/.test(password)) return { valid: false, message: 'La contraseña debe tener al menos 8 caracteres, 1 númeroy 1 letra mayúscula' };
+    if (password.length < 8 && !/[0-9]/.test(password) && !/[a-z]/.test(password)) return { valid: false, message: 'La contraseña debe tener al menos 8 caracteres, 1 letra minúscula y 1 número' };
+    if (!/[A-Z]/.test(password) && !/[a-z]/.test(password) && !/[0-9]/.test(password)) return { valid: false, message: 'La contraseña debe tener al menos 1 número, 1 letra minúscula y 1 letra mayúscula' };
+    if (password.length < 8 && !/[A-Z]/.test(password)) return { valid: false, message: 'La contraseña debe tener al menos 8 caracteres y 1 letra mayúscula' };
+    if (password.length < 8 && !/[a-z]/.test(password)) return { valid: false, message: 'La contraseña debe tener al menos 8 caracteres y 1 letra minúscula' };
+    if (password.length < 8 && !/[0-9]/.test(password)) return { valid: false, message: 'La contraseña debe tener al menos 8 caracteres y 1 número' };
+    if (!/[A-Z]/.test(password) && !/[0-9]/.test(password)) return { valid: false, message: 'La contraseña debe tener al menos 1 mayúscula y 1 número' };
+    if (!/[a-z]/.test(password) && !/[0-9]/.test(password)) return { valid: false, message: 'La contraseña debe tener al menos 1 minúscula y 1 número' };
+    if (!/[a-z]/.test(password) && !/[A-Z]/.test(password)) return { valid: false, message: 'La contraseña debe tener al menos 1 minúscula y 1 mayúscula' };
+    if (password.length < 8 ) return { valid: false, message: 'La contraseña debe tener al menos 8 caracteres' };
+    if (!/[A-Z]/.test(password)) return { valid: false, message: 'La contraseña debe tener al menos una letra mayúscula' };
+    if (!/[a-z]/.test(password)) return { valid: false, message: 'Debe contener al menos una letra minúscula' };
+    if (!/[0-9]/.test(password)) return { valid: false, message: 'Debe contener al menos un número' };
+    return { valid: true };
+  }
+
+  checkPasswordStrength(password: string) {
+    let score = 0;
+
+    if (!password) {
+      this.passwordStrength = 0;
+      this.passwordStrengthLabel = '';
+      return;
+    }
+
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score++;
+
+    this.passwordStrength = score;
+
+    switch (score) {
+      case 0:
+      case 1:
+        this.passwordStrengthLabel = 'Muy débil';
+        break;
+      case 2:
+        this.passwordStrengthLabel = 'Débil';
+        break;
+      case 3:
+        this.passwordStrengthLabel = 'Segura';
+        break;
+      case 4:
+        this.passwordStrengthLabel = 'Fuerte';
+        break;
+    }
+  }
 }
