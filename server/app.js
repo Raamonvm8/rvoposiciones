@@ -742,7 +742,11 @@ app.get('/api/recursos/talleres', async (req, res) => {
     const [recursos] = await db.query('SELECT * FROM recursos_talleres WHERE tipo = "taller"');
     for (let r of recursos) {
       const [archivos] = await db.query('SELECT * FROM archivos_talleres WHERE recurso_id = ?', [r.id]);
+      const [links] = await db.query(
+        'SELECT id, title, url FROM links_talleres WHERE recurso_id = ?', [r.id]
+      );
       r.archivos = archivos;
+      r.links = links;
     }
     res.json(recursos);
   } catch (err) {
@@ -795,6 +799,44 @@ app.delete('/api/recurso/talleres/:id', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error eliminando recurso', error: err });
+  }
+});
+
+app.post('/api/recurso/talleres/:id/link', async (req, res) => {
+  const recursoId = req.params.id;
+  const { title, url } = req.body;
+
+  if (!title || !url) {
+    return res.status(400).json({ message: 'Datos incompletos' });
+  }
+
+  try {
+    const [result] = await db.query(
+      'INSERT INTO links_talleres (recurso_id, title, url) VALUES (?, ?, ?)',
+      [recursoId, title.trim(), url.trim()]
+    );
+
+    const [rows] = await db.query(
+      'SELECT id, title, url FROM links_talleres WHERE id = ?',
+      [result.insertId]
+    );
+
+    res.json({ link: rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error creando link' });
+  }
+});
+
+app.delete('/api/recurso/talleres/link/:id', async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    await db.query('DELETE FROM links_talleres WHERE id = ?', [id]);
+    res.json({ message: 'Link eliminado' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error eliminando link' });
   }
 });
 
